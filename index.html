@@ -1,0 +1,1835 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RTA — روبلوكس</title>
+    <link rel="manifest" href="/manifest.json">
+    <meta name="theme-color" content="#7c3aed">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="RTA">
+    <link rel="apple-touch-icon" href="/rta-logo.png">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <style>
+/* ===== ROOT VARIABLES ===== */
+:root {
+  --p1: #7c3aed;
+  --p2: #4f1dab;
+  --gold: #f59e0b;
+  --gold2: #d97706;
+  --cyan: #06b6d4;
+  --bg0: #05050f;
+  --bg1: #0b0b1e;
+  --bg2: #100d2e;
+  --glass: rgba(124,58,237,0.08);
+  --glass2: rgba(255,255,255,0.04);
+  --border: rgba(124,58,237,0.25);
+  --border2: rgba(255,255,255,0.07);
+  --text: #f0eaff;
+  --text2: rgba(240,234,255,0.65);
+  --ease: cubic-bezier(0.175,0.885,0.32,1.275);
+  --tr: all 0.4s var(--ease);
+}
+
+/* ===== RESET ===== */
+*, *::before, *::after {
+  margin: 0; padding: 0; box-sizing: border-box;
+  font-family: 'Cairo', sans-serif;
+  -webkit-user-select: none; user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg0); }
+::-webkit-scrollbar-thumb { background: var(--p1); border-radius: 99px; }
+
+/* ===== BODY + CANVAS ===== */
+body {
+  background: var(--bg0);
+  color: var(--text);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* ===== NAV ===== */
+nav {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%;
+  z-index: 1000;
+  background: rgba(5,5,15,0.85);
+  backdrop-filter: blur(24px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 0 20px;
+  height: 62px;
+  position: relative;
+}
+
+.logo {
+  font-size: 1.7rem;
+  font-weight: 900;
+  letter-spacing: 3px;
+  background: linear-gradient(135deg, #fff 20%, var(--p1) 55%, var(--gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 12px rgba(124,58,237,0.6));
+}
+
+.hamburger {
+  position: absolute;
+  right: 20px;
+  width: 42px; height: 42px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 12px;
+  cursor: pointer;
+  font-size: 22px;
+  color: var(--p1);
+  background: var(--glass2);
+  border: 1px solid var(--border2);
+  transition: var(--tr);
+}
+.hamburger:hover { background: var(--glass); border-color: var(--border); }
+
+/* ===== SIDEBAR MENU ===== */
+#drawer {
+  position: fixed;
+  top: 0; right: -320px;
+  width: 300px;
+  height: 100vh;
+  background: linear-gradient(180deg, rgba(10,6,28,0.99) 0%, rgba(6,4,18,0.99) 100%);
+  backdrop-filter: blur(40px);
+  border-left: 1px solid rgba(124,58,237,0.2);
+  z-index: 2000;
+  padding: 0 0 30px;
+  transition: right 0.45s cubic-bezier(0.77,0,0.18,1);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+#drawer.open { right: 0; box-shadow: -20px 0 60px rgba(0,0,0,0.7); }
+
+#drawer-overlay {
+  display: none;
+  position: fixed; inset: 0; z-index: 1999;
+  background: rgba(0,0,0,0.65);
+  backdrop-filter: blur(6px);
+}
+#drawer-overlay.open { display: block; }
+
+.drawer-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 18px 16px;
+  border-bottom: 1px solid rgba(124,58,237,0.15);
+  margin-bottom: 12px;
+  background: linear-gradient(135deg, rgba(124,58,237,0.12), transparent);
+}
+
+.drawer-logo {
+  font-size: 1.5rem;
+  font-weight: 900;
+  letter-spacing: 4px;
+  background: linear-gradient(135deg, #fff 20%, var(--p1) 60%, var(--gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.drawer-close {
+  width: 34px; height: 34px;
+  border-radius: 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  color: rgba(255,255,255,0.6);
+  font-size: 1.2rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--tr);
+  line-height: 1;
+}
+.drawer-close:hover { background: rgba(239,68,68,0.25); color: #fff; border-color: rgba(239,68,68,0.4); }
+
+.drawer-body { padding: 0 14px; }
+
+.menu-section-label {
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.25);
+  text-transform: uppercase;
+  padding: 14px 6px 6px;
+  margin-bottom: 4px;
+}
+
+.menu-list { list-style: none; }
+
+.menu-item {
+  border-radius: 14px;
+  margin-bottom: 6px;
+  overflow: hidden;
+  border: 1px solid transparent;
+  transition: var(--tr);
+}
+
+.menu-item-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  transition: var(--tr);
+  border-radius: 14px;
+  position: relative;
+  color: rgba(255,255,255,0.85);
+}
+.menu-item-header:hover { background: rgba(124,58,237,0.12); color: #fff; }
+.menu-item-header i.lead {
+  color: var(--cyan);
+  font-size: 1rem;
+  width: 22px;
+  text-align: center;
+}
+.menu-item-header .arrow {
+  margin-right: auto; margin-left: 0;
+  font-size: 0.75rem;
+  color: rgba(124,58,237,0.7);
+  transition: transform 0.3s;
+}
+.menu-item.expanded .arrow { transform: rotate(180deg); color: var(--p1); }
+.menu-item.expanded {
+  border-color: rgba(124,58,237,0.25);
+  background: rgba(124,58,237,0.07);
+}
+.menu-item.expanded .menu-item-header { color: #fff; }
+
+.submenu {
+  list-style: none;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s ease;
+  padding: 0 10px;
+}
+.submenu.open { max-height: 300px; padding-bottom: 10px; padding-top: 4px; }
+.submenu li {
+  padding: 10px 14px;
+  margin-top: 5px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 0.86rem;
+  color: rgba(255,255,255,0.6);
+  background: rgba(255,255,255,0.025);
+  border-right: 2px solid rgba(124,58,237,0.5);
+  transition: var(--tr);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.submenu li::before {
+  content: '';
+  width: 5px; height: 5px;
+  border-radius: 50%;
+  background: var(--p1);
+  opacity: 0.6;
+  flex-shrink: 0;
+}
+.submenu li:hover {
+  background: rgba(124,58,237,0.2);
+  color: #fff;
+  border-right-color: var(--p1);
+  transform: translateX(-4px);
+}
+.submenu li:hover::before { opacity: 1; }
+
+.menu-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, rgba(124,58,237,0.2), transparent);
+  margin: 10px 0;
+}
+
+.plain-item {
+  padding: 13px 16px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.95rem;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  transition: var(--tr);
+  color: rgba(255,255,255,0.85);
+  border: 1px solid transparent;
+}
+.plain-item i {
+  color: var(--gold);
+  font-size: 1rem;
+  width: 22px;
+  text-align: center;
+}
+.plain-item:hover {
+  background: rgba(245,158,11,0.1);
+  border-color: rgba(245,158,11,0.2);
+  color: var(--gold);
+}
+
+.drawer-footer {
+  margin-top: 20px;
+  padding: 16px 18px 0;
+  border-top: 1px solid rgba(255,255,255,0.05);
+  text-align: center;
+  font-size: 0.72rem;
+  color: rgba(255,255,255,0.2);
+  letter-spacing: 0.5px;
+}
+.drawer-footer span { color: rgba(124,58,237,0.6); font-weight: 700; }
+
+/* ===== PAGE SYSTEM ===== */
+.page {
+  display: none;
+  min-height: 100vh;
+  padding: 90px 20px 60px;
+  position: relative;
+  z-index: 1;
+  max-width: 860px;
+  margin: 0 auto;
+}
+.page.active { display: block; animation: fadeUp 0.6s ease-out both; }
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== HERO SECTION ===== */
+.hero {
+  text-align: center;
+  padding: 20px 0 10px;
+}
+
+.hero-img-wrap {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 32px;
+}
+.hero-img-wrap::before {
+  content: '';
+  position: absolute;
+  inset: -14px;
+  border-radius: 40px;
+  background: conic-gradient(from 0deg, var(--p1), var(--gold), var(--cyan), var(--p1));
+  animation: spin 6s linear infinite;
+  filter: blur(8px);
+  opacity: 0.55;
+  z-index: 0;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.hero-img {
+  width: 210px; height: 210px;
+  border-radius: 32px;
+  object-fit: cover;
+  position: relative;
+  z-index: 1;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(124,58,237,0.3);
+  animation: float 5s ease-in-out infinite;
+}
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50%      { transform: translateY(-14px); }
+}
+
+.hero-brand {
+  font-size: 4.5rem;
+  font-weight: 900;
+  letter-spacing: 6px;
+  line-height: 1;
+  background: linear-gradient(135deg, #fff 10%, var(--p1) 50%, var(--gold) 90%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  filter: drop-shadow(0 0 30px rgba(124,58,237,0.5));
+  margin-bottom: 14px;
+}
+
+.hero-sub {
+  font-size: 1.15rem;
+  color: var(--text2);
+  margin-bottom: 44px;
+}
+.hero-sub span { color: var(--cyan); font-weight: 700; }
+
+/* ===== CARDS GRID ===== */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 18px;
+  margin-bottom: 44px;
+}
+
+.card {
+  background: var(--glass2);
+  border: 1px solid var(--border2);
+  border-radius: 24px;
+  padding: 30px 20px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: var(--tr);
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 0%, rgba(124,58,237,0.14) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+.card:hover::before { opacity: 1; }
+.card:hover {
+  transform: translateY(-8px);
+  border-color: var(--p1);
+  box-shadow: 0 20px 50px rgba(124,58,237,0.25), 0 0 0 1px rgba(124,58,237,0.35);
+}
+.card i {
+  font-size: 2.4rem;
+  margin-bottom: 16px;
+  display: block;
+  background: linear-gradient(135deg, var(--p1), var(--cyan));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 8px; }
+.card p  { font-size: 0.82rem; color: var(--text2); line-height: 1.5; }
+
+/* ===== SOCIAL BUTTONS ===== */
+.socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 15px 32px;
+  border-radius: 16px;
+  font-weight: 800;
+  font-size: 0.97rem;
+  text-decoration: none;
+  color: #fff;
+  border: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s var(--ease), box-shadow 0.3s;
+  -webkit-user-drag: none;
+  width: 100%;
+  max-width: 400px;
+  letter-spacing: 0.5px;
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(255,255,255,0);
+  transition: background 0.2s;
+}
+.btn:hover::after { background: rgba(255,255,255,0.06); }
+.btn:hover { transform: translateY(-3px); }
+.btn:active { transform: scale(0.96) translateY(1px); }
+
+.btn-discord { background: linear-gradient(135deg,#5865F2,#3b4acf); box-shadow: 0 8px 24px rgba(88,101,242,0.35); }
+.btn-app     { background: linear-gradient(135deg,var(--p1),var(--p2)); box-shadow: 0 8px 24px rgba(124,58,237,0.35); }
+.btn-yt      { background: linear-gradient(135deg,#ff0000,#cc0000); box-shadow: 0 8px 24px rgba(255,0,0,0.3); }
+.btn-dl      { background: linear-gradient(135deg,var(--gold),var(--gold2)); color: #1a0a00; box-shadow: 0 8px 24px rgba(245,158,11,0.3); }
+.btn-android { background: linear-gradient(135deg,#3ddc84,#1a9957); box-shadow: 0 8px 24px rgba(61,220,132,0.3); }
+.btn-pc      { background: linear-gradient(135deg,#38bdf8,#0369a1); box-shadow: 0 8px 24px rgba(56,189,248,0.3); }
+.btn-pek-i   { background: linear-gradient(135deg,var(--p1),var(--p2)); box-shadow: 0 8px 24px rgba(124,58,237,0.35); }
+.btn-pek-a   { background: linear-gradient(135deg,#f87171,#b91c1c); box-shadow: 0 8px 24px rgba(248,113,113,0.3); }
+.btn-black   { background: linear-gradient(135deg,#1f1f2e,#111); border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+
+/* ===== SECTION HERO (inner pages) ===== */
+.section-hero {
+  text-align: center;
+  margin-bottom: 40px;
+}
+.section-hero img {
+  width: 180px; height: 180px;
+  border-radius: 24px;
+  object-fit: cover;
+  margin-bottom: 20px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 0 1px rgba(124,58,237,0.3);
+  animation: float 5s ease-in-out infinite;
+}
+.section-title {
+  font-size: 1.9rem;
+  font-weight: 900;
+  background: linear-gradient(135deg, #fff 20%, var(--p1) 60%, var(--gold) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 8px;
+}
+.section-sub { font-size: 1rem; color: var(--text2); }
+.section-sub span { color: var(--cyan); font-weight: 700; }
+
+/* ===== HACK CARDS ===== */
+.hack-card {
+  background: var(--glass2);
+  border: 1px solid var(--border2);
+  border-radius: 28px;
+  padding: 32px 28px;
+  margin-bottom: 24px;
+  transition: var(--tr);
+  position: relative;
+  overflow: hidden;
+}
+.hack-card::before {
+  content: '';
+  position: absolute;
+  top: 0; right: 0;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(124,58,237,0.12) 0%, transparent 70%);
+  transform: translate(30%, -30%);
+  pointer-events: none;
+}
+.hack-card:hover {
+  border-color: var(--p1);
+  transform: translateY(-4px);
+  box-shadow: 0 24px 60px rgba(124,58,237,0.2);
+}
+
+.hack-top {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+.hack-img {
+  width: 130px; height: 130px;
+  border-radius: 18px;
+  object-fit: cover;
+  flex-shrink: 0;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.5), 0 0 0 1px rgba(124,58,237,0.2);
+}
+.hack-info { flex: 1; min-width: 200px; }
+.hack-info h2 {
+  font-size: 1.25rem;
+  font-weight: 900;
+  margin-bottom: 14px;
+  color: #fff;
+}
+.hack-info h2 span { color: var(--cyan); }
+.features { list-style: none; }
+.features li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 0;
+  font-size: 0.9rem;
+  color: var(--text2);
+  border-bottom: 1px solid var(--border2);
+}
+.features li:last-child { border-bottom: none; }
+.features li::before {
+  content: '';
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  flex-shrink: 0;
+}
+
+.hack-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.hack-btns .btn { max-width: none; flex: 1; min-width: 140px; }
+
+/* ===== INSTALL GUIDE ===== */
+.guide-card {
+  background: linear-gradient(135deg, rgba(124,58,237,0.08), rgba(6,182,212,0.05));
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 28px 24px;
+  margin-bottom: 24px;
+}
+.guide-card h2 {
+  font-size: 1.2rem;
+  font-weight: 900;
+  margin-bottom: 18px;
+  color: var(--gold);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.guide-card h2 i { color: var(--gold); }
+.guide-steps { list-style: none; counter-reset: steps; }
+.guide-steps li {
+  counter-increment: steps;
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border2);
+  font-size: 0.9rem;
+  color: var(--text2);
+  line-height: 1.5;
+}
+.guide-steps li:last-child { border-bottom: none; }
+.guide-steps li::before {
+  content: counter(steps);
+  min-width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--glass);
+  border: 1px solid var(--border);
+  color: var(--p1);
+  font-weight: 800;
+  font-size: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ===== UNOFFICIAL TAG ===== */
+.tag-unofficial {
+  display: inline-block;
+  font-size: 0.65rem;
+  padding: 2px 9px;
+  border-radius: 99px;
+  background: linear-gradient(135deg,#f59e0b,#d97706);
+  color: #000;
+  font-weight: 800;
+  vertical-align: middle;
+  margin-right: 6px;
+  letter-spacing: 0.3px;
+}
+
+/* ===== CERTS PAGE ===== */
+.cert-hero {
+  text-align: center;
+  padding: 30px 0 20px;
+}
+.cert-icon {
+  font-size: 4rem;
+  background: linear-gradient(135deg,var(--gold),var(--p1));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 16px;
+}
+.cert-hero h1 {
+  font-size: 2.2rem; font-weight: 900;
+  background: linear-gradient(135deg,#fff,var(--p1),var(--gold));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  margin-bottom: 10px;
+}
+.cert-hero p { color: var(--text2); font-size: 1rem; margin-bottom: 32px; }
+
+.perks-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(200px,1fr));
+  gap: 16px;
+  margin-bottom: 32px;
+}
+.perk {
+  background: var(--glass2);
+  border: 1px solid var(--border2);
+  border-radius: 20px;
+  padding: 24px 18px;
+  text-align: center;
+  transition: var(--tr);
+}
+.perk:hover { border-color: var(--gold); transform: translateY(-4px); }
+.perk i { font-size: 1.8rem; color: var(--gold); margin-bottom: 12px; display: block; }
+.perk h3 { font-size: 0.95rem; font-weight: 800; margin-bottom: 6px; }
+.perk p  { font-size: 0.8rem; color: var(--text2); }
+
+/* ===== MODAL (platform chooser) ===== */
+.modal-overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.75);
+  backdrop-filter: blur(12px);
+  z-index: 3000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+.modal-overlay.open {
+  opacity: 1;
+  pointer-events: all;
+}
+.modal {
+  background: linear-gradient(145deg, rgba(15,10,40,0.98), rgba(20,8,55,0.98));
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 44px 28px 32px;
+  max-width: 480px;
+  width: 100%;
+  text-align: center;
+  position: relative;
+  box-shadow: 0 40px 80px rgba(0,0,0,0.7), 0 0 60px rgba(124,58,237,0.25);
+  transform: scale(0.88) translateY(20px);
+  transition: transform 0.35s cubic-bezier(0.34,1.56,0.64,1);
+}
+.modal-overlay.open .modal { transform: scale(1) translateY(0); }
+
+.modal-close {
+  position: absolute;
+  top: 14px; left: 14px;
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: var(--glass2);
+  border: 1px solid var(--border2);
+  color: #fff;
+  font-size: 1.3rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--tr);
+  line-height: 1;
+}
+.modal-close:hover { background: rgba(239,68,68,0.3); border-color: rgba(239,68,68,0.5); transform: rotate(90deg); }
+
+.modal h3 {
+  font-size: 1.35rem; font-weight: 900;
+  margin-bottom: 6px;
+  background: linear-gradient(135deg,#fff,var(--p1));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.modal p { color: var(--text2); font-size: 0.9rem; margin-bottom: 28px; }
+
+.modal-choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+.choice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 22px 14px;
+  border-radius: 18px;
+  cursor: pointer;
+  font-family: inherit;
+  color: #fff;
+  border: 1px solid transparent;
+  transition: var(--tr);
+  background: var(--glass2);
+}
+.choice i { font-size: 1.9rem; }
+.choice b { font-size: 1rem; font-weight: 800; }
+.choice small { font-size: 0.75rem; color: var(--text2); }
+.choice-hack { border-color: rgba(124,58,237,0.3); }
+.choice-hack:hover { background: rgba(124,58,237,0.2); border-color: var(--p1); transform: translateY(-4px); box-shadow: 0 12px 30px rgba(124,58,237,0.3); }
+.choice-pek  { border-color: rgba(245,158,11,0.3); }
+.choice-pek:hover  { background: rgba(245,158,11,0.12); border-color: var(--gold); transform: translateY(-4px); box-shadow: 0 12px 30px rgba(245,158,11,0.2); }
+
+/* ===== FOOTER ===== */
+.footer {
+  text-align: center;
+  padding: 40px 0 20px;
+  color: rgba(255,255,255,0.2);
+  font-size: 0.82rem;
+  letter-spacing: 0.5px;
+}
+
+/* ===== DIVIDER ===== */
+.divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--border), transparent);
+  margin: 32px 0;
+}
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 600px) {
+  .hero-brand  { font-size: 3.2rem; }
+  .hack-top    { flex-direction: column; align-items: center; }
+  .hack-img    { width: 100%; max-width: 280px; height: 200px; }
+  .modal-choices { grid-template-columns: 1fr; }
+}
+    </style>
+</head>
+<body>
+
+<!-- ===== PARTICLE BG ===== -->
+<canvas id="bg-canvas"></canvas>
+
+<!-- ===== NAV ===== -->
+<nav>
+  <div class="nav-inner">
+    <div class="logo">RTA</div>
+    <div class="hamburger" onclick="openDrawer()"><i class="bi bi-list"></i></div>
+  </div>
+</nav>
+
+<!-- ===== SIDEBAR DRAWER ===== -->
+<div id="drawer-overlay" onclick="closeDrawer()"></div>
+<div id="drawer">
+  <div class="drawer-header">
+    <div class="drawer-logo">RTA</div>
+    <button class="drawer-close" onclick="closeDrawer()">&times;</button>
+  </div>
+  <div class="drawer-body">
+    <div class="menu-section-label">القائمة الرئيسية</div>
+    <ul class="menu-list">
+      <li class="menu-item">
+        <div class="menu-item-header" onclick="navPlain('home')">
+          <i class="bi bi-house lead"></i> الصفحة الرئيسية
+        </div>
+      </li>
+    </ul>
+
+    <div class="menu-divider"></div>
+    <div class="menu-section-label">روبلوكس</div>
+    <ul class="menu-list">
+      <li class="menu-item" id="mi-iphone">
+        <div class="menu-item-header" onclick="toggleSub('sub-iphone','mi-iphone')">
+          <i class="bi bi-phone lead"></i> ايفون
+          <i class="bi bi-chevron-down arrow"></i>
+        </div>
+        <ul class="submenu" id="sub-iphone">
+          <li onclick="navTo('roblox')">هاك روبلوكس ايفون</li>
+          <li onclick="navTo('pek-iphone')">روبلوكس القديمه (بيكورا)</li>
+        </ul>
+      </li>
+      <li class="menu-item" id="mi-android">
+        <div class="menu-item-header" onclick="toggleSub('sub-android','mi-android')">
+          <i class="bi bi-android2 lead"></i> اندرويد
+          <i class="bi bi-chevron-down arrow"></i>
+        </div>
+        <ul class="submenu" id="sub-android">
+          <li onclick="navTo('roblox-android')">هاك روبلوكس اندرويد</li>
+          <li onclick="navTo('pek-android')">روبلوكس القديمه (بيكورا)</li>
+        </ul>
+      </li>
+      <li class="menu-item" id="mi-pc">
+        <div class="menu-item-header" onclick="toggleSub('sub-pc','mi-pc')">
+          <i class="bi bi-laptop lead"></i> بي سي
+          <i class="bi bi-chevron-down arrow"></i>
+        </div>
+        <ul class="submenu" id="sub-pc">
+          <li onclick="navTo('roblox-pc')">هاك روبلوكس بي سي</li>
+          <li onclick="navTo('pek-pc')">روبلوكس القديمه (بيكورا)</li>
+        </ul>
+      </li>
+    </ul>
+
+    <div class="menu-divider"></div>
+    <ul class="menu-list">
+      <li class="menu-item">
+        <div class="plain-item" onclick="navPlain('certs')">
+          <i class="bi bi-patch-check"></i> شراء شهايد
+        </div>
+      </li>
+    </ul>
+
+  </div>
+</div>
+
+<!-- ===== PLATFORM CHOOSER MODAL ===== -->
+<div class="modal-overlay" id="chooser" onclick="if(event.target===this)closeChooser()">
+  <div class="modal">
+    <button class="modal-close" onclick="closeChooser()">&times;</button>
+    <h3 id="chooser-title">اختر ما تريد</h3>
+    <p>اختر النوع المناسب لك</p>
+    <div class="modal-choices">
+      <button class="choice choice-hack" onclick="pickChoice('hack')">
+        <i class="bi bi-lightning-fill"></i>
+        <b>هاك روبلوكس</b>
+        <small>إكسيكيوتر متقدم</small>
+      </button>
+      <button class="choice choice-pek" onclick="pickChoice('pekora')">
+        <i class="bi bi-clock-history"></i>
+        <b>روبلوكس القديمه</b>
+        <small>بيكورا 2017–2021</small>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ========================================================= -->
+<!-- PAGE: HOME                                                 -->
+<!-- ========================================================= -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-img-wrap">
+      <img src="/rta-logo.png" alt="RTA Logo" class="hero-img">
+    </div>
+    <div class="hero-brand">RTA</div>
+    <p class="hero-sub">مرحباً بكم في موقع <span>RTA</span> — المنصة المتطورة لروبلوكس</p>
+  </div>
+
+  <div class="cards-grid">
+    <div class="card" onclick="openChooser('iphone')">
+      <i class="bi bi-phone"></i>
+      <h3>تطبيقات iOS</h3>
+      <p>هاك روبلوكس + روبلوكس القديمه (بيكورا)</p>
+    </div>
+    <div class="card" onclick="openChooser('android')">
+      <i class="bi bi-android2"></i>
+      <h3>تطبيقات Android</h3>
+      <p>هاك روبلوكس + روبلوكس القديمه (بيكورا)</p>
+    </div>
+    <div class="card" onclick="openChooser('pc')">
+      <i class="bi bi-laptop"></i>
+      <h3>تطبيقات PC</h3>
+      <p>هاك روبلوكس + روبلوكس القديمه (بيكورا)</p>
+    </div>
+    <div class="card" onclick="navPlain('certs')">
+      <i class="bi bi-shield-fill-check"></i>
+      <h3>شراء شهايد</h3>
+      <p>شهادات مطورين بأسعار منافسة</p>
+    </div>
+  </div>
+
+  <!-- ===== روابط السوشيال — الرئيسية ===== -->
+  <div class="socials">
+    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="btn btn-discord" draggable="false">
+      <i class="bi bi-discord"></i> ديسكورد
+    </a>
+    <a href="https://rtx261.github.io/RTX/RTX.mobileconfig" class="btn btn-app" draggable="false">
+      <i class="bi bi-phone"></i> تنزيل الموقع
+    </a>
+    <a href="https://youtube.com/@rtxtop1-rtx" target="_blank" class="btn btn-yt" draggable="false">
+      <i class="bi bi-youtube"></i> يوتيوب
+    </a>
+  </div>
+  
+</div>
+
+<!-- ========================================================= -->
+<!-- PAGE: هاك ايفون                                           -->
+<!-- ========================================================= -->
+<div class="page" id="page-roblox">
+  <div class="section-hero">
+    <img src="https://i.postimg.cc/sDFbqYGQ/IMG-9633.jpg" alt="Roblox iPhone">
+    <div class="section-title">هاك روبلوكس — ايفون</div>
+    <p class="section-sub">أقوى هاكات إكسيكيوتر لـ <span>iOS</span></p>
+  </div>
+
+  <!-- Delta -->
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/JhrQQYV2/E367-C7-D2-4750-4524-ADD5-B9-A8-DA953734.png" alt="Delta" class="hack-img">
+      <div class="hack-info">
+        <h2>هاك <span>دلتا</span></h2>
+        <ul class="features">
+          <li>من اقوى الهاكات حمايتاً</li>
+          <li>سهولة الحصول على المفتاح</li>
+          <li>يمكنك بحث السكربتات فيه</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط دلتا ايفون ===== -->
+      <a href="itms-services://?action=download-manifest&url=https://delta.bz/manifest.plist" class="btn btn-black" draggable="false">
+        <i class="bi bi-download"></i> Delta Install
+      </a>
+      <!-- ===== رابط دلتا VNG ايفون ===== -->
+      <a href="itms-services://?action=download-manifest&url=https://www.installonair.com/storage/ipaz/ttvKl9/ttvKl9.plist" class="btn btn-black" draggable="false">
+        <i class="bi bi-download"></i> Delta VNG Install
+      </a>
+    </div>
+  </div>
+
+  <!-- Skibx -->
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/3xNZTSKc/IMG-2739.jpg" alt="Skibx" class="hack-img">
+      <div class="hack-info">
+        <h2>هاك <span>سكيبكس</span></h2>
+        <ul class="features">
+          <li>من غير مفتاح</li>
+          <li>يوجد بحث سكربتات</li>
+          <li>من اقوى الهاكات حمايتاً</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط سكيبكس ايفون ===== -->
+      <a href="itms-services://?action=download-manifest&url=https://www.installonair.com/storage/ipaz/M3mXu6/M3mXu6.plist" class="btn btn-pek-i" draggable="false">
+        <i class="bi bi-download"></i> Skibx Install
+      </a>
+      <!-- ===== رابط سكيبكس VNG ايفون ===== -->
+      <a href="itms-services://?action=download-manifest&url=https://www.installonair.com/storage/ipaz/W3Y9kG/W3Y9kG.plist" class="btn btn-pek-i" draggable="false">
+        <i class="bi bi-download"></i> Skibx VNG Install
+      </a>
+    </div>
+  </div>
+
+  <!-- Ronix -->
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/K8kr3JYQ/togif.gif" alt="Ronix" class="hack-img">
+      <div class="hack-info">
+        <h2>هاك <span>رونيكس</span></h2>
+        <ul class="features">
+          <li>خلفيه و قائمه اسطوريه</li>
+          <li>يمكنك بحث السكربتات فيه</li>
+          <li>سهولة استخدامه</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط رونيكس ايفون ===== -->
+      <a href="itms-services://?action=download-manifest&url=https://www.installonair.com/storage/ipaz/9mfHhz/9mfHhz.plist" class="btn btn-dl" draggable="false">
+        <i class="bi bi-download"></i> Ronix Install
+      </a>
+      <!-- ===== رابط رونيكس VNG ايفون ===== -->
+      <a href="itms-services://?action=download-manifest&url=https://www.installonair.com/storage/ipaz/UqtSK3/UqtSK3.plist" class="btn btn-dl" draggable="false">
+        <i class="bi bi-download"></i> Ronix VNG Install
+      </a>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <h2><i class="bi bi-info-circle"></i> شرح التحميل</h2>
+    <ol class="guide-steps">
+      <li>قم بالضغط على زر التحميل الخاص بالهاك الذي تريده.</li>
+      <li>سيظهر لك إشعار يطلب منك تثبيت التطبيق — اضغط تثبيت.</li>
+      <li>اذهب إلى الإعدادات ← عام ← إدارة الأجهزة وقم بتوثيق الشهادة.</li>
+      <li>افتح التطبيق واستمتع باللعب!</li>
+    </ol>
+  </div>
+
+  <!-- ===== روابط السوشيال — هاك ايفون ===== -->
+  <div class="socials">
+    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="btn btn-discord" draggable="false"><i class="bi bi-discord"></i> ديسكورد</a>
+    <a href="https://rtx261.github.io/RTX/RTX.mobileconfig" class="btn btn-app" draggable="false"><i class="bi bi-phone"></i> تنزيل الموقع</a>
+    <a href="https://youtube.com/@rtxtop1-rtx" target="_blank" class="btn btn-yt" draggable="false"><i class="bi bi-youtube"></i> يوتيوب</a>
+  </div>
+  
+</div>
+
+<!-- ========================================================= -->
+<!-- PAGE: هاك اندرويد                                         -->
+<!-- ========================================================= -->
+<div class="page" id="page-roblox-android">
+  <div class="section-hero">
+    <img src="https://i.postimg.cc/7LbBfhTr/IMG-9631.png" alt="Roblox Android">
+    <div class="section-title">هاك روبلوكس — اندرويد</div>
+    <p class="section-sub">أفضل هاكات روبلوكس لـ <span>Android</span></p>
+  </div>
+
+  <!-- Delta -->
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/JhrQQYV2/E367-C7-D2-4750-4524-ADD5-B9-A8-DA953734.png" alt="Delta" class="hack-img">
+      <div class="hack-info">
+        <h2>هاك <span>دلتا</span></h2>
+        <ul class="features">
+          <li>من اقوى الهاكات حمايتاً</li>
+          <li>سهولة الحصول على المفتاح</li>
+          <li>يمكنك بحث السكربتات فيه</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط دلتا اندرويد ===== -->
+      <a href="https://www.mediafire.com/file/v6sogoz9kn9iduw/Delta-2.716.875.apk/file" class="btn btn-android" draggable="false"><i class="bi bi-download"></i> Delta Install</a>
+      <!-- ===== رابط دلتا VNG اندرويد ===== -->
+      <a href="https://www.mediafire.com/file/nopi33zoga9mfu1/Delta-2.711.871-VN.apk/file" class="btn btn-android" draggable="false"><i class="bi bi-download"></i> Delta VNG Install</a>
+    </div>
+  </div>
+
+  <!-- Codex -->
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/vZgLmbJg/IMG-0210.webp" alt="Codex" class="hack-img">
+      <div class="hack-info">
+        <h2>هاك <span>كوديكس</span></h2>
+        <ul class="features">
+          <li>حمايه جيده</li>
+          <li>خلفية الهاك جيده</li>
+          <li>بحث سكربتات متطور</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط كوديكس اندرويد ===== -->
+      <a href="https://www.mediafire.com/file/4cadggxj7k5vktx/Codex+v2.716.apk/file" class="btn btn-android" draggable="false"><i class="bi bi-download"></i> CODEX Install</a>
+      <!-- ===== رابط كوديكس VNG اندرويد ===== -->
+      <a href="https://www.mediafire.com/file/3py7clwl1zxm5oo/Codex+V2.710.707.apk/file" class="btn btn-android" draggable="false"><i class="bi bi-download"></i> CODEX VNG Install</a>
+    </div>
+  </div>
+
+  <!-- Arceus -->
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/T10Hb1Yr/IMG-0211.jpg" alt="Arceus" class="hack-img">
+      <div class="hack-info">
+        <h2>هاك <span>ارسيوس اكس نيو</span></h2>
+        <ul class="features">
+          <li>حمايه ممتازه</li>
+          <li>سهولة الحصول على المفتاح</li>
+          <li>من افضل الهاكات</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط ارسيوس اندرويد ===== -->
+      <a href="https://www.mediafire.com/file/nli72kkxnkrh4g7/Roblox.-.Arceus.X.v5.1.4.2.apk/file" class="btn btn-android" draggable="false"><i class="bi bi-download"></i> Arceus X Neo Install</a>
+      <!-- ===== رابط ارسيوس VNG اندرويد ===== -->
+      <a href="https://www.mediafire.com/file/l8239o9vm625amg/Roblox.-.VNG.Arceus.X.v5.1.4.2.apk/file" class="btn btn-android" draggable="false"><i class="bi bi-download"></i> Arceus X Neo VNG</a>
+    </div>
+  </div>
+
+  <!-- Skibx -->
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/3xNZTSKc/IMG-2739.jpg" alt="Skibx" class="hack-img">
+      <div class="hack-info">
+        <h2>هاك <span>سكيبكس</span></h2>
+        <ul class="features">
+          <li>من غير مفتاح</li>
+          <li>يوجد بحث سكربتات</li>
+          <li>من اقوى الهاكات حمايتاً</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط سكيبكس اندرويد ===== -->
+      <a href="https://www.mediafire.com/file/khh1d18x0sbdfc6/SkibX-2.707.734.apk/file" class="btn btn-android" draggable="false"><i class="bi bi-download"></i> Skibx Install</a>
+      <!-- ===== رابط سكيبكس VNG اندرويد ===== -->
+      <a href="https://www.mediafire.com/file/khh1d18x0sbdfc6/SkibX-2.707.734.apk/file" class="btn btn-android" draggable="false"><i class="bi bi-download"></i> Skibx VNG Install</a>
+    </div>
+  </div>
+
+  <!-- Cryptic -->
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/90kgbSZM/30-DD9793-DD7-B-4-F30-8516-52-A9156-CDB2-E.png" alt="Cryptic" class="hack-img">
+      <div class="hack-info">
+        <h2>هاك <span>كرايبتك</span></h2>
+        <ul class="features">
+          <li>حمايه جيده</li>
+          <li>قائمه و خلفيه مميزه</li>
+          <li>سهولة الاستخدام</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط كرايبتك اندرويد ===== -->
+      <a href="https://www.mediafire.com/file/2cw9hn5kg5x1vk1/Cryptic.2.689.CrypticExecutor.com+[rtxtop1].apk/file" class="btn btn-android" draggable="false"><i class="bi bi-download"></i> Cryptic Install</a>
+      <!-- ===== رابط كرايبتك VNG اندرويد ===== -->
+      <a href="https://www.mediafire.com/file/2cw9hn5kg5x1vk1/Cryptic.2.689.CrypticExecutor.com+[rtxtop1].apk/file" class="btn btn-android" draggable="false"><i class="bi bi-download"></i> Cryptic VNG Install</a>
+    </div>
+  </div>
+
+  <!-- Ronix -->
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/K8kr3JYQ/togif.gif" alt="Ronix" class="hack-img">
+      <div class="hack-info">
+        <h2>هاك <span>رونيكس</span></h2>
+        <ul class="features">
+          <li>خلفيه و قائمه اسطوريه</li>
+          <li>يمكنك بحث السكربتات فيه</li>
+          <li>سهولة استخدامه</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط رونيكس اندرويد ===== -->
+      <a href="https://www.mediafire.com/file/cut0tioprp921tt/Ronix_32Bits-2.710.707.apk/file" class="btn btn-android" draggable="false"><i class="bi bi-download"></i> Ronix Install</a>
+      <!-- ===== رابط رونيكس VNG اندرويد ===== -->
+      <a href="https://www.mediafire.com/file/cut0tioprp921tt/Ronix_32Bits-2.710.707.apk/file" class="btn btn-android" draggable="false"><i class="bi bi-download"></i> Ronix VNG Install</a>
+    </div>
+  </div>
+
+  <!-- Trigon -->
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/pVBsdmST/44-CA8-C7-A-50-BD-4-B09-9-AF1-5-E232-BA37165.png" alt="Trigon" class="hack-img">
+      <div class="hack-info">
+        <h2>هاك <span>تريجون</span></h2>
+        <ul class="features">
+          <li>حمايه ممتازه</li>
+          <li>سهولة الحصول على المفتاح</li>
+          <li>سهولة الاستخدام</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط تريجون اندرويد ===== -->
+      <a href="https://www.mediafire.com/file/3b0k4ks6s1scwey/Trigon_2.716.875.apk/file" class="btn btn-android" draggable="false"><i class="bi bi-download"></i> Trigon Install</a>
+    </div>
+  </div>
+
+  <!-- Vega X -->
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/D00bkwJ5/IMG-0264.png" alt="Vega X" class="hack-img">
+      <div class="hack-info">
+        <h2>هاك <span>فيجا اكس</span></h2>
+        <ul class="features">
+          <li>سهولة الحصول على المفتاح</li>
+          <li>سهولة الاستخدام</li>
+          <li>حمايه جيده</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط فيجا اكس اندرويد ===== -->
+      <a href="https://www.mediafire.com/file/a1xkbytour4xksc/Vega.X+8.apk/file" class="btn btn-android" draggable="false"><i class="bi bi-download"></i> Vega X Install</a>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <h2><i class="bi bi-info-circle"></i> شرح التحميل للأندرويد</h2>
+    <ol class="guide-steps">
+      <li>قم بتحميل ملف APK الخاص بالهاك.</li>
+      <li>إذا ظهر تحذير "تطبيق غير معروف" اذهب للإعدادات وفعّل "تثبيت من مصادر غير معروفة".</li>
+      <li>قم بتثبيت الملف وافتحه لبدء اللعب.</li>
+    </ol>
+  </div>
+
+  <!-- ===== روابط السوشيال — هاك اندرويد ===== -->
+  <div class="socials">
+    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="btn btn-discord" draggable="false"><i class="bi bi-discord"></i> ديسكورد</a>
+    <a href="https://rtx261.github.io/RTX/RTX.mobileconfig" class="btn btn-app" draggable="false"><i class="bi bi-phone"></i> تنزيل الموقع</a>
+    <a href="https://youtube.com/@rtxtop1-rtx" target="_blank" class="btn btn-yt" draggable="false"><i class="bi bi-youtube"></i> يوتيوب</a>
+  </div>
+  
+</div>
+
+<!-- ========================================================= -->
+<!-- PAGE: هاك بي سي                                           -->
+<!-- ========================================================= -->
+<div class="page" id="page-roblox-pc">
+  <div class="section-hero">
+    <img src="https://i.postimg.cc/NMbx4DRr/D03-DBAF5-031-F-4-F8-D-A1-DA-620-A5-BEED6-A4.jpg" alt="Roblox PC">
+    <div class="section-title">هاك روبلوكس — بي سي</div>
+    <p class="section-sub">أقوى هاكات روبلوكس لـ <span>Windows</span></p>
+  </div>
+
+  <!-- Semo -->
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/4xtBj52Z/4219495-A-FC75-4-E7-A-9546-B644-BCF4-EA85.png" alt="Semo" class="hack-img">
+      <div class="hack-info">
+        <h2>هاك <span>سيمو</span></h2>
+        <ul class="features">
+          <li>من افضل الهاكات حمايتاً</li>
+          <li>لا يوجد مفتاح</li>
+          <li>سهولة الاستخدام</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط سيمو بي سي ===== -->
+      <a href="https://www.dropbox.com/scl/fi/ppuzmw1nqixti0t55r3y9/Semo-Executor-v3.50.rar?rlkey=nf99s3g8r9krjfcvwedxmgqwy&st=lt6s1bf9&dl=1" class="btn btn-pc" draggable="false"><i class="bi bi-download"></i> Semo Install</a>
+    </div>
+  </div>
+
+  <!-- Velocity -->
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/J7d5g8q9/IMG-4356.png" alt="Velocity" class="hack-img">
+      <div class="hack-info">
+        <h2>هاك <span>فيلوسيتي</span></h2>
+        <ul class="features">
+          <li>أداء سريع وفعال</li>
+          <li>واجهة مستخدم متقدمة</li>
+          <li>حماية عالية الجودة</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط فيلوسيتي بي سي ===== -->
+      <a href="https://www.mediafire.com/file/f0egpgwh11qvtz5/Velocity.zip/file" class="btn btn-pc" draggable="false"><i class="bi bi-download"></i> Velocity Install</a>
+    </div>
+  </div>
+
+  <!-- Xeno -->
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/j5ygNhNZ/AD101609-C2-A8-4-E25-A2-E0-FEDFA8-C740-CF.png" alt="Xeno" class="hack-img">
+      <div class="hack-info">
+        <h2>هاك <span>اكسينو</span></h2>
+        <ul class="features">
+          <li>حماية اسطوريه</li>
+          <li>يمكنك بحث سكربتات فيه</li>
+          <li>سهولة الاستخدام</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط اكسينو بي سي ===== -->
+      <a href="https://www.mediafire.com/file/2ge30y7r9ufi9gt/Xeno-v1.3.30.zip/file" class="btn btn-pc" draggable="false"><i class="bi bi-download"></i> Xeno Install</a>
+    </div>
+  </div>
+
+  <!-- Ronix PC -->
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/K8kr3JYQ/togif.gif" alt="Ronix" class="hack-img">
+      <div class="hack-info">
+        <h2>هاك <span>رونيكس</span></h2>
+        <ul class="features">
+          <li>خلفيه و قائمه اسطوريه</li>
+          <li>يمكنك بحث السكربتات فيه</li>
+          <li>سهولة استخدامه</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط رونيكس بي سي ===== -->
+      <a href="https://wrdcdn.net/r/154522/1769203129478/RonixInstaller_NEW.exe" class="btn btn-pc" draggable="false"><i class="bi bi-download"></i> Ronix Install</a>
+    </div>
+  </div>
+
+  <!-- Trigon PC -->
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/pL7jDhDS/44-CA8-C7-A-50-BD-4-B09-9-AF1-5-E232-BA37165.png" alt="Trigon" class="hack-img">
+      <div class="hack-info">
+        <h2>هاك <span>تريجون</span></h2>
+        <ul class="features">
+          <li>حمايه ممتازه</li>
+          <li>سهولة الحصول على المفتاح</li>
+          <li>سهولة الاستخدام</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط تريجون بي سي ===== -->
+      <a href="https://www.mediafire.com/file/jwmwp9xhriyqkql/Trigon_Evo_0.2.6.exe/file" class="btn btn-pc" draggable="false"><i class="bi bi-download"></i> Trigon Install</a>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <h2><i class="bi bi-info-circle"></i> شرح التشغيل للكمبيوتر</h2>
+    <ol class="guide-steps">
+      <li>قم بتحميل الملف المضغوط وفك الضغط عنه.</li>
+      <li>أغلق برنامج الحماية (Windows Defender) لتجنب حذف الهاك.</li>
+      <li>افتح اللعبة ثم شغّل الهاك كمسؤول (Run as Administrator).</li>
+    </ol>
+  </div>
+
+  <!-- ===== روابط السوشيال — هاك بي سي ===== -->
+  <div class="socials">
+    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="btn btn-discord" draggable="false"><i class="bi bi-discord"></i> ديسكورد</a>
+    <a href="https://rtx261.github.io/RTX/RTX.mobileconfig" class="btn btn-app" draggable="false"><i class="bi bi-phone"></i> تنزيل الموقع</a>
+    <a href="https://youtube.com/@rtxtop1-rtx" target="_blank" class="btn btn-yt" draggable="false"><i class="bi bi-youtube"></i> يوتيوب</a>
+  </div>
+  
+</div>
+
+<!-- ========================================================= -->
+<!-- PAGE: بيكورا ايفون                                        -->
+<!-- ========================================================= -->
+<div class="page" id="page-pek-iphone">
+  <div class="section-hero">
+    <img src="https://i.postimg.cc/2S94Nh74/IMG-5013.jpg" alt="Pekora iPhone">
+    <div class="section-title">بيكورا — ايفون</div>
+    <p class="section-sub">روبلوكس القديمه لـ <span>iOS</span> — اختر النسخة</p>
+  </div>
+
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/WzKvP9zW/IMG-5030.jpg" alt="2017" class="hack-img">
+      <div class="hack-info">
+        <h2>روبلوكس <span>2017</span> — ايفون</h2>
+        <ul class="features">
+          <li>تجربة روبلوكس الأصلية لعام 2017</li>
+          <li>واجهة كلاسيكية</li>
+          <li>أداء سلس على iOS</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط بيكورا 2017 ايفون ===== -->
+      <a href="itms-services://?action=download-manifest&url=https://www.installonair.com/storage/ipaz/qPUdjF/qPUdjF.plist" class="btn btn-pek-i" draggable="false"><i class="bi bi-download"></i> Roblox 2017 Install</a>
+    </div>
+  </div>
+
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/CKNpKMds/IMG-5031.jpg" alt="2018" class="hack-img">
+      <div class="hack-info">
+        <h2>روبلوكس <span>2018</span> — ايفون</h2>
+        <ul class="features">
+          <li>تجربة روبلوكس الأصلية لعام 2018</li>
+          <li>تحسينات في الأداء</li>
+          <li>متوافقة مع iOS</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط بيكورا 2018 ايفون ===== -->
+      <a href="itms-services://?action=download-manifest&url=https://www.installonair.com/storage/ipaz/Cnxcvp/Cnxcvp.plist" class="btn btn-pek-i" draggable="false"><i class="bi bi-download"></i> Roblox 2018 Install</a>
+    </div>
+  </div>
+
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/W1GQ9pG5/IMG-5032.jpg" alt="2020" class="hack-img">
+      <div class="hack-info">
+        <h2>روبلوكس <span>2020</span> — ايفون</h2>
+        <ul class="features">
+          <li>تجربة روبلوكس الأصلية لعام 2020</li>
+          <li>رسومات محسنة</li>
+          <li>أداء عالي على iOS</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط بيكورا 2020 ايفون ===== -->
+      <a href="itms-services://?action=download-manifest&url=https://www.installonair.com/storage/ipaz/qUaKrE/qUaKrE.plist" class="btn btn-pek-i" draggable="false"><i class="bi bi-download"></i> Roblox 2020 Install</a>
+    </div>
+  </div>
+
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/PfBX9xDJ/IMG-5033.jpg" alt="2021" class="hack-img">
+      <div class="hack-info">
+        <h2>روبلوكس <span>2021</span> <span class="tag-unofficial">غير رسمي</span></h2>
+        <ul class="features">
+          <li>تجربة روبلوكس لعام 2021</li>
+          <li>نسخة غير رسمية</li>
+          <li>قد تحتوي على بعض المشاكل</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط بيكورا 2021 ايفون ===== -->
+      <a href="itms-services://?action=download-manifest&url=https://www.installonair.com/storage/ipaz/d5Dfp7/d5Dfp7.plist" class="btn btn-pek-i" draggable="false"><i class="bi bi-download"></i> Roblox 2021 (غير رسمي)</a>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <h2><i class="bi bi-info-circle"></i> شرح التحميل — بيكورا ايفون</h2>
+    <ol class="guide-steps">
+      <li>اضغط على زر التحميل الخاص بالنسخة التي تريدها.</li>
+      <li>سيظهر إشعار يطلب التثبيت — اضغط تثبيت.</li>
+      <li>اذهب إلى الإعدادات ← عام ← إدارة الأجهزة ووثّق الشهادة.</li>
+      <li>افتح التطبيق واستمتع!</li>
+    </ol>
+  </div>
+
+  <!-- ===== روابط السوشيال — بيكورا ايفون ===== -->
+  <div class="socials">
+    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="btn btn-discord" draggable="false"><i class="bi bi-discord"></i> ديسكورد</a>
+    <a href="https://rtx261.github.io/RTX/RTX.mobileconfig" class="btn btn-app" draggable="false"><i class="bi bi-phone"></i> تنزيل الموقع</a>
+    <a href="https://youtube.com/@rtxtop1-rtx" target="_blank" class="btn btn-yt" draggable="false"><i class="bi bi-youtube"></i> يوتيوب</a>
+  </div>
+  
+</div>
+
+<!-- ========================================================= -->
+<!-- PAGE: بيكورا اندرويد                                      -->
+<!-- ========================================================= -->
+<div class="page" id="page-pek-android">
+  <div class="section-hero">
+    <img src="https://i.postimg.cc/fbLQJndm/B5A2C9B1-F1AB-4799-BAA3-F03ADFA84FD0.png" alt="Pekora Android">
+    <div class="section-title">بيكورا — اندرويد</div>
+    <p class="section-sub">روبلوكس القديمه لـ <span>Android</span> — اختر النسخة</p>
+  </div>
+
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/TwV0xhwR/IMG-5034.jpg" alt="2017" class="hack-img">
+      <div class="hack-info">
+        <h2>روبلوكس <span>2017</span> — اندرويد</h2>
+        <ul class="features">
+          <li>تجربة روبلوكس الأصلية لعام 2017</li>
+          <li>متوفر رسمي وغير رسمي</li>
+          <li>أداء سريع على الأندرويد</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط بيكورا 2017 اندرويد رسمي ===== -->
+      <a href="https://www.mediafire.com/file/tzzl8frcvnem989/Pekora2017L.apk/file" class="btn btn-pek-a" draggable="false"><i class="bi bi-download"></i> Roblox 2017 (رسمي)</a>
+      <!-- ===== رابط بيكورا 2017 اندرويد غير رسمي ===== -->
+      <a href="https://www.mediafire.com/file/ggz4eg6hnfx2sqq/Korone_2017.apk/file" class="btn btn-pek-a" draggable="false"><i class="bi bi-download"></i> Roblox 2017 (غير رسمي)</a>
+    </div>
+  </div>
+
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/XNgLDZmK/IMG-5035.jpg" alt="2018" class="hack-img">
+      <div class="hack-info">
+        <h2>روبلوكس <span>2018</span> <span class="tag-unofficial">غير رسمي</span></h2>
+        <ul class="features">
+          <li>تجربة روبلوكس لعام 2018</li>
+          <li>نسخة غير رسمية</li>
+          <li>قد تحتوي على بعض المشاكل</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط بيكورا 2018 اندرويد ===== -->
+      <a href="https://www.mediafire.com/file/j713t6vbcx1fdbn/Korone_2018.apk/file" class="btn btn-pek-a" draggable="false"><i class="bi bi-download"></i> Roblox 2018 (غير رسمي)</a>
+    </div>
+  </div>
+
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/BnjC6m6V/IMG-5036.jpg" alt="2020" class="hack-img">
+      <div class="hack-info">
+        <h2>روبلوكس <span>2020</span> <span class="tag-unofficial">غير رسمي</span></h2>
+        <ul class="features">
+          <li>تجربة روبلوكس لعام 2020</li>
+          <li>نسخة غير رسمية</li>
+          <li>قد تحتوي على بعض المشاكل</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط بيكورا 2020 اندرويد ===== -->
+      <a href="https://www.mediafire.com/file/wvz6yi1144uu29i/Korone_2020.apk/file" class="btn btn-pek-a" draggable="false"><i class="bi bi-download"></i> Roblox 2020 (غير رسمي)</a>
+    </div>
+  </div>
+
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/Gt3F1QVh/IMG-5038.jpg" alt="2021" class="hack-img">
+      <div class="hack-info">
+        <h2>روبلوكس <span>2021</span> <span class="tag-unofficial">غير رسمي</span></h2>
+        <ul class="features">
+          <li>تجربة روبلوكس لعام 2021</li>
+          <li>نسخة غير رسمية</li>
+          <li>قد تحتوي على بعض المشاكل</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط بيكورا 2021 اندرويد ===== -->
+      <a href="https://www.mediafire.com/file/bpu9bzv8a3hmfe1/Korone_2021.apk/file" class="btn btn-pek-a" draggable="false"><i class="bi bi-download"></i> Roblox 2021 (غير رسمي)</a>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <h2><i class="bi bi-info-circle"></i> شرح التحميل — بيكورا اندرويد</h2>
+    <ol class="guide-steps">
+      <li>قم بتحميل ملف APK الخاص بالنسخة التي تريدها.</li>
+      <li>إذا ظهر تحذير "تطبيق غير معروف" فعّل "تثبيت من مصادر غير معروفة".</li>
+      <li>قم بتثبيت الملف وافتحه لبدء اللعب.</li>
+    </ol>
+  </div>
+
+  <!-- ===== روابط السوشيال — بيكورا اندرويد ===== -->
+  <div class="socials">
+    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="btn btn-discord" draggable="false"><i class="bi bi-discord"></i> ديسكورد</a>
+    <a href="https://rtx261.github.io/RTX/RTX.mobileconfig" class="btn btn-app" draggable="false"><i class="bi bi-phone"></i> تنزيل الموقع</a>
+    <a href="https://youtube.com/@rtxtop1-rtx" target="_blank" class="btn btn-yt" draggable="false"><i class="bi bi-youtube"></i> يوتيوب</a>
+  </div>
+  
+</div>
+
+<!-- ========================================================= -->
+<!-- PAGE: بيكورا بي سي                                        -->
+<!-- ========================================================= -->
+<div class="page" id="page-pek-pc">
+  <div class="section-hero">
+    <img src="https://i.postimg.cc/jSnzKCgJ/IMG-5015.jpg" alt="Pekora PC">
+    <div class="section-title">بيكورا — بي سي</div>
+    <p class="section-sub">روبلوكس القديمه لـ <span>Windows</span> — اختر النسخة</p>
+  </div>
+
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/854vwvcC/IMG-5041.jpg" alt="2017" class="hack-img">
+      <div class="hack-info">
+        <h2>روبلوكس <span>2017</span> — بي سي</h2>
+        <ul class="features">
+          <li>تجربة روبلوكس الأصلية لعام 2017</li>
+          <li>أداء عالي على الكمبيوتر</li>
+          <li>نسخة رسمية</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط بيكورا 2017 بي سي ===== -->
+      <a href="https://www.mediafire.com/file/kzadf87gvjyt6md/PekoraStudio2017+3.zip/file" class="btn btn-pc" draggable="false"><i class="bi bi-download"></i> Roblox 2017 Install</a>
+    </div>
+  </div>
+
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/QxwT6h8p/IMG-5042.jpg" alt="2018" class="hack-img">
+      <div class="hack-info">
+        <h2>روبلوكس <span>2018</span> — بي سي</h2>
+        <ul class="features">
+          <li>تجربة روبلوكس الأصلية لعام 2018</li>
+          <li>تحسينات في الرسومات</li>
+          <li>نسخة رسمية</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط بيكورا 2018 بي سي ===== -->
+      <a href="https://www.mediafire.com/file/n4j9d8b33273dqg/PekoraStudio2018+2.zip/file" class="btn btn-pc" draggable="false"><i class="bi bi-download"></i> Roblox 2018 Install</a>
+    </div>
+  </div>
+
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/TwdLyP9B/IMG-5043.jpg" alt="2020" class="hack-img">
+      <div class="hack-info">
+        <h2>روبلوكس <span>2020</span> — بي سي</h2>
+        <ul class="features">
+          <li>تجربة روبلوكس الأصلية لعام 2020</li>
+          <li>أداء ممتاز</li>
+          <li>نسخة رسمية</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط بيكورا 2020 بي سي ===== -->
+      <a href="https://www.mediafire.com/file/dd71xq5h51198yj/PekoraStudio2020+2.zip/file" class="btn btn-pc" draggable="false"><i class="bi bi-download"></i> Roblox 2020 Install</a>
+    </div>
+  </div>
+
+  <div class="hack-card">
+    <div class="hack-top">
+      <img src="https://i.postimg.cc/4NDY6PPY/IMG-5045.jpg" alt="2021" class="hack-img">
+      <div class="hack-info">
+        <h2>روبلوكس <span>2021</span> — بي سي</h2>
+        <ul class="features">
+          <li>تجربة روبلوكس لعام 2021</li>
+          <li>أحدث تحديثات الكلاسيكية</li>
+          <li>نسخة رسمية</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hack-btns">
+      <!-- ===== رابط بيكورا 2021 بي سي ===== -->
+      <a href="https://www.mediafire.com/file/4jcde8p3eo91f4t/PekoraStudio2021+2.zip/file" class="btn btn-pc" draggable="false"><i class="bi bi-download"></i> Roblox 2021 Install</a>
+    </div>
+  </div>
+
+  <div class="guide-card">
+    <h2><i class="bi bi-info-circle"></i> شرح التشغيل — بيكورا بي سي</h2>
+    <ol class="guide-steps">
+      <li>قم بتحميل الملف المضغوط وفك الضغط عنه.</li>
+      <li>أغلق برنامج الحماية (Windows Defender) لتجنب حذف الملفات.</li>
+      <li>افتح اللعبة وشغّلها كمسؤول (Run as Administrator).</li>
+    </ol>
+  </div>
+
+  <!-- ===== روابط السوشيال — بيكورا بي سي ===== -->
+  <div class="socials">
+    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="btn btn-discord" draggable="false"><i class="bi bi-discord"></i> ديسكورد</a>
+    <a href="https://rtx261.github.io/RTX/RTX.mobileconfig" class="btn btn-app" draggable="false"><i class="bi bi-phone"></i> تنزيل الموقع</a>
+    <a href="https://youtube.com/@rtxtop1-rtx" target="_blank" class="btn btn-yt" draggable="false"><i class="bi bi-youtube"></i> يوتيوب</a>
+  </div>
+  
+</div>
+
+<!-- ========================================================= -->
+<!-- PAGE: شراء شهايد                                          -->
+<!-- ========================================================= -->
+<div class="page" id="page-certs">
+  <div class="cert-hero">
+    <div class="cert-icon"><i class="bi bi-patch-check"></i></div>
+    <h1>شراء شهايد</h1>
+    <p>شهادات مطورين للايفون بأسعار منافسة ودعم متواصل</p>
+  </div>
+
+  <div class="perks-grid">
+    <div class="perk">
+      <i class="bi bi-shield-fill-check"></i>
+      <h3>آمنة 100%</h3>
+      <p>شهادات موثوقة لتثبيت أي تطبيق</p>
+    </div>
+    <div class="perk">
+      <i class="bi bi-calendar-check"></i>
+      <h3>سنة كاملة</h3>
+      <p>الشهادة تدوم لمدة 12 شهراً</p>
+    </div>
+    <div class="perk">
+      <i class="bi bi-headset"></i>
+      <h3>دعم متواصل</h3>
+      <p>فريق دعم جاهز لمساعدتك</p>
+    </div>
+  </div>
+
+  <!-- ===== رابط ديسكورد — شراء شهايد ===== -->
+  <div class="socials">
+    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="btn btn-discord" draggable="false">
+      <i class="bi bi-discord"></i> تواصل معنا عبر الديسكورد للشراء
+    </a>
+  </div>
+  
+</div>
+
+<!-- ===== JS ===== -->
+<script>
+/* ---------- PARTICLE CANVAS ---------- */
+(function () {
+  const canvas = document.getElementById('bg-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [];
+
+  const COLORS = ['rgba(124,58,237,', 'rgba(245,158,11,', 'rgba(6,182,212,'];
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+
+  function createParticle() {
+    return {
+      x: Math.random() * W,
+      y: Math.random() * H,
+      r: Math.random() * 1.8 + 0.4,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: (Math.random() - 0.5) * 0.25,
+      color: COLORS[Math.floor(Math.random() * COLORS.length)],
+      alpha: Math.random() * 0.5 + 0.1,
+    };
+  }
+
+  function init() {
+    resize();
+    particles = Array.from({ length: 90 }, createParticle);
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = W;
+      if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H;
+      if (p.y > H) p.y = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = p.color + p.alpha + ')';
+      ctx.fill();
+    });
+
+    /* connect close particles */
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist < 100) {
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(124,58,237,${0.06 * (1 - dist / 100)})`;
+          ctx.lineWidth = 0.5;
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+
+  window.addEventListener('resize', resize);
+  init();
+  draw();
+})();
+
+/* ---------- DRAWER ---------- */
+function openDrawer() {
+  document.getElementById('drawer').classList.add('open');
+  document.getElementById('drawer-overlay').classList.add('open');
+}
+function closeDrawer() {
+  document.getElementById('drawer').classList.remove('open');
+  document.getElementById('drawer-overlay').classList.remove('open');
+}
+
+function toggleSub(subId, itemId) {
+  const sub  = document.getElementById(subId);
+  const item = document.getElementById(itemId);
+  const isOpen = sub.classList.contains('open');
+  document.querySelectorAll('.submenu.open').forEach(s => s.classList.remove('open'));
+  document.querySelectorAll('.menu-item.expanded').forEach(i => i.classList.remove('expanded'));
+  if (!isOpen) { sub.classList.add('open'); item.classList.add('expanded'); }
+}
+
+function navTo(id) {
+  showPage('page-' + id);
+  closeDrawer();
+}
+function navPlain(id) {
+  showPage('page-' + id);
+  closeDrawer();
+}
+
+/* ---------- PAGE NAVIGATION ---------- */
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  const target = document.getElementById(id);
+  if (target) { target.classList.add('active'); }
+  closeChooser();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ---------- PLATFORM CHOOSER ---------- */
+const PLATFORMS = {
+  iphone:  { hack: 'page-roblox',         pekora: 'page-pek-iphone' },
+  android: { hack: 'page-roblox-android',  pekora: 'page-pek-android' },
+  pc:      { hack: 'page-roblox-pc',       pekora: 'page-pek-pc' },
+};
+let _currentPlatform = null;
+
+function openChooser(platform) {
+  _currentPlatform = platform;
+  const labels = { iphone: 'iOS / ايفون', android: 'Android', pc: 'PC / كمبيوتر' };
+  document.getElementById('chooser-title').textContent = 'اختر ما تريد — ' + labels[platform];
+  document.getElementById('chooser').classList.add('open');
+}
+function closeChooser() {
+  document.getElementById('chooser').classList.remove('open');
+}
+function pickChoice(type) {
+  if (!_currentPlatform) return;
+  const dest = PLATFORMS[_currentPlatform][type];
+  closeChooser();
+  showPage(dest);
+}
+
+/* ---------- SERVICE WORKER (offline support) ---------- */
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js').catch(() => {});
+  });
+}
+
+/* ---------- BLOCK DEV TOOLS ---------- */
+document.addEventListener('contextmenu', e => { if (!e.target.closest('a')) e.preventDefault(); });
+document.addEventListener('keydown', e => {
+  if (e.key === 'F12') e.preventDefault();
+  if (e.ctrlKey && ['u','s','i','j'].includes(e.key)) e.preventDefault();
+});
+</script>
+</body>
+</html>
