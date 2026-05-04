@@ -777,9 +777,105 @@ nav {
   .hack-img    { width: 100%; max-width: 280px; height: 200px; }
   .modal-choices { grid-template-columns: 1fr; }
 }
+/* ===== ANNOUNCEMENT POPUP ===== */
+#announce-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(5,5,15,0.88);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  padding: 20px;
+}
+#announce-box {
+  background: linear-gradient(145deg, #0e0a2a, #130d35);
+  border: 2px solid rgba(124,58,237,0.55);
+  border-radius: 22px;
+  max-width: 420px;
+  width: 100%;
+  padding: 0 0 28px;
+  box-shadow: 0 0 60px rgba(124,58,237,0.35), 0 0 120px rgba(245,158,11,0.08);
+  text-align: center;
+  animation: popIn 0.45s cubic-bezier(.34,1.56,.64,1) both;
+  overflow: hidden;
+}
+@keyframes popIn {
+  from { opacity:0; transform:scale(0.78) translateY(30px); }
+  to   { opacity:1; transform:scale(1) translateY(0); }
+}
+#announce-gif {
+  width: 100%;
+  max-height: 230px;
+  object-fit: cover;
+  display: block;
+}
+#announce-body {
+  padding: 22px 24px 0;
+}
+#announce-badge {
+  display: inline-block;
+  background: linear-gradient(90deg, var(--p1), var(--gold));
+  color: #fff;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  padding: 4px 14px;
+  border-radius: 20px;
+  margin-bottom: 14px;
+  text-transform: uppercase;
+}
+#announce-text {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #f0eaff;
+  line-height: 1.8;
+  margin-bottom: 22px;
+  text-shadow: 0 0 20px rgba(124,58,237,0.4);
+}
+#announce-text span {
+  color: var(--gold);
+}
+#announce-btn {
+  display: inline-block;
+  background: linear-gradient(135deg, var(--p1), var(--p2));
+  color: #fff;
+  font-family: 'Cairo', sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  border: none;
+  border-radius: 14px;
+  padding: 13px 40px;
+  cursor: pointer;
+  box-shadow: 0 4px 24px rgba(124,58,237,0.45);
+  transition: transform 0.18s, box-shadow 0.18s;
+  letter-spacing: 0.5px;
+}
+#announce-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px rgba(124,58,237,0.6);
+}
+#announce-btn:active { transform: scale(0.97); }
     </style>
 </head>
 <body>
+
+<!-- ===== ANNOUNCEMENT POPUP ===== -->
+<div id="announce-overlay">
+  <div id="announce-box">
+    <img id="announce-gif" src="/notice.gif" alt="RTA Notice" />
+    <div id="announce-body">
+      <div id="announce-badge">⚠️ ملاحظة مهمة</div>
+      <div id="announce-text">
+        كل الهاكات <span>مضمونة وشغّالة</span><br>
+        وبحقوق سيرفر <span>RTA</span> وسولجر بوي
+      </div>
+      <button id="announce-btn" onclick="closeAnnounce()">✅ أكمل تصفح</button>
+    </div>
+  </div>
+</div>
 
 <!-- ===== PARTICLE BG ===== -->
 <canvas id="bg-canvas"></canvas>
@@ -1688,6 +1784,14 @@ nav {
 
 <!-- ===== JS ===== -->
 <script>
+/* ---------- ANNOUNCEMENT ---------- */
+function closeAnnounce() {
+  const ov = document.getElementById('announce-overlay');
+  ov.style.transition = 'opacity 0.35s ease';
+  ov.style.opacity = '0';
+  setTimeout(() => ov.remove(), 360);
+}
+
 /* ---------- PARTICLE CANVAS ---------- */
 (function () {
   const canvas = document.getElementById('bg-canvas');
