@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RTA — لوحة التحكم</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Cairo',sans-serif;background:#05050f;color:#f0eaff;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;}
+.card{background:linear-gradient(145deg,#0e0a2a,#130d35);border:1.5px solid rgba(124,58,237,0.4);border-radius:24px;padding:36px 32px;width:100%;max-width:480px;box-shadow:0 0 60px rgba(124,58,237,0.2);}
+h1{font-size:1.5rem;font-weight:900;text-align:center;margin-bottom:6px;}
+h1 span{color:#f59e0b;}
+.sub{text-align:center;color:rgba(240,234,255,0.5);font-size:0.82rem;margin-bottom:28px;}
+.field{margin-bottom:18px;}
+label{display:block;font-size:0.82rem;font-weight:700;color:rgba(240,234,255,0.6);margin-bottom:7px;letter-spacing:0.5px;}
+input{width:100%;background:rgba(255,255,255,0.05);border:1.5px solid rgba(124,58,237,0.3);border-radius:13px;padding:13px 16px;color:#f0eaff;font-family:'Cairo',sans-serif;font-size:0.95rem;outline:none;transition:border-color 0.2s;}
+input:focus{border-color:#7c3aed;box-shadow:0 0 0 3px rgba(124,58,237,0.15);}
+.btn{width:100%;padding:14px;border-radius:14px;border:none;font-family:'Cairo',sans-serif;font-size:1rem;font-weight:800;cursor:pointer;transition:all 0.2s;}
+.btn-primary{background:linear-gradient(135deg,#7c3aed,#4f1dab);color:#fff;box-shadow:0 6px 24px rgba(124,58,237,0.4);}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(124,58,237,0.55);}
+.btn-save{background:linear-gradient(135deg,#059669,#065f46);color:#fff;box-shadow:0 6px 24px rgba(5,150,105,0.35);}
+.btn-save:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(5,150,105,0.5);}
+.err{color:#f87171;font-size:0.82rem;text-align:center;margin-top:10px;}
+#login-screen{}
+#admin-screen{display:none;}
+.stat-box{background:rgba(124,58,237,0.1);border:1px solid rgba(124,58,237,0.25);border-radius:16px;padding:20px;text-align:center;margin-bottom:24px;}
+.stat-num{font-size:2.4rem;font-weight:900;color:#f59e0b;}
+.stat-label{font-size:0.8rem;color:rgba(240,234,255,0.5);margin-top:4px;}
+.divider{border:none;border-top:1px solid rgba(255,255,255,0.07);margin:22px 0;}
+.section-label{font-size:0.78rem;font-weight:700;color:#7c3aed;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px;}
+.msg{padding:12px 16px;border-radius:12px;font-size:0.88rem;font-weight:700;text-align:center;margin-top:14px;display:none;}
+.msg-ok{background:rgba(5,150,105,0.2);border:1px solid rgba(5,150,105,0.4);color:#6ee7b7;}
+.msg-err{background:rgba(248,113,113,0.15);border:1px solid rgba(248,113,113,0.35);color:#f87171;}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:0.82rem;color:rgba(240,234,255,0.4);text-decoration:none;margin-bottom:20px;}
+.back:hover{color:#7c3aed;}
+.token-note{font-size:0.74rem;color:rgba(240,234,255,0.4);margin-top:6px;line-height:1.6;}
+</style>
+</head>
+<body>
+
+<!-- ===== LOGIN SCREEN ===== -->
+<div class="card" id="login-screen">
+  <h1>🔐 لوحة تحكم <span>RTA</span></h1>
+  <p class="sub">أدخل كلمة المرور للمتابعة</p>
+  <div class="field">
+    <label>كلمة المرور</label>
+    <input type="password" id="pass-input" placeholder="••••••••" autocomplete="off">
+  </div>
+  <button class="btn btn-primary" onclick="doLogin()">دخول</button>
+  <p class="err" id="login-err"></p>
+</div>
+
+<!-- ===== ADMIN SCREEN ===== -->
+<div class="card" id="admin-screen">
+  <a href="/" class="back">← العودة للموقع</a>
+  <h1>⚙️ لوحة تحكم <span>RTA</span></h1>
+  <p class="sub">إدارة الروابط ومتابعة الزيارات</p>
+
+  <!-- Visit Counter -->
+  <div class="stat-box">
+    <div class="stat-num" id="visit-count">—</div>
+    <div class="stat-label">إجمالي الزيارات</div>
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">تعديل الروابط</div>
+
+  <div class="field">
+    <label>رابط ديسكورد</label>
+    <input type="url" id="f-discord" placeholder="https://discord.gg/...">
+  </div>
+  <div class="field">
+    <label>رابط يوتيوب</label>
+    <input type="url" id="f-youtube" placeholder="https://youtube.com/@...">
+  </div>
+  <div class="field">
+    <label>رابط تنزيل الموقع</label>
+    <input type="url" id="f-download" placeholder="https://...">
+  </div>
+
+  <hr class="divider">
+  <div class="section-label">GitHub Token (للحفظ)</div>
+  <div class="field">
+    <input type="password" id="f-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" autocomplete="off">
+    <p class="token-note">أدخل الـ Personal Access Token حتى تحفظ التغييرات على GitHub مباشرة. لن يُحفظ في أي مكان.</p>
+  </div>
+
+  <button class="btn btn-save" onclick="saveLinks()">💾 حفظ التغييرات على GitHub</button>
+  <div class="msg" id="save-msg"></div>
+</div>
+
+<script>
+const PASS = 'RTA2026';
+const REPO_USER = 'rta200263';
+const REPO_NAME = 'rta-website';
+
+function doLogin() {
+  const v = document.getElementById('pass-input').value;
+  if (v === PASS) {
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('admin-screen').style.display = 'block';
+    loadData();
+  } else {
+    document.getElementById('login-err').textContent = 'كلمة المرور غلط — حاول مرة ثانية';
+  }
+}
+document.getElementById('pass-input').addEventListener('keydown', e => { if(e.key==='Enter') doLogin(); });
+
+async function loadData() {
+  // Visit count
+  try {
+    const r = await fetch('https://api.countapi.xyz/get/rta200263-rta/visits');
+    const d = await r.json();
+    document.getElementById('visit-count').textContent = (d.value || 0).toLocaleString('ar-SA');
+  } catch(e) {
+    document.getElementById('visit-count').textContent = 'غير متاح';
+  }
+
+  // Current links
+  try {
+    const r = await fetch('https://raw.githubusercontent.com/' + REPO_USER + '/' + REPO_NAME + '/main/config.json?_=' + Date.now());
+    const cfg = await r.json();
+    if(cfg.discord)  document.getElementById('f-discord').value  = cfg.discord;
+    if(cfg.youtube)  document.getElementById('f-youtube').value  = cfg.youtube;
+    if(cfg.download) document.getElementById('f-download').value = cfg.download;
+  } catch(e) {}
+}
+
+async function saveLinks() {
+  const token    = document.getElementById('f-token').value.trim();
+  const discord  = document.getElementById('f-discord').value.trim();
+  const youtube  = document.getElementById('f-youtube').value.trim();
+  const download = document.getElementById('f-download').value.trim();
+  const msg      = document.getElementById('save-msg');
+
+  if (!token) { showMsg('أدخل GitHub Token أولاً', false); return; }
+  if (!discord && !youtube && !download) { showMsg('أدخل رابطاً واحداً على الأقل', false); return; }
+
+  const newCfg = {};
+  if (discord)  newCfg.discord  = discord;
+  if (youtube)  newCfg.youtube  = youtube;
+  if (download) newCfg.download = download;
+
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(newCfg, null, 2) + '\n')));
+
+  try {
+    // Get current SHA
+    const check = await fetch('https://api.github.com/repos/' + REPO_USER + '/' + REPO_NAME + '/contents/config.json', {
+      headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'RTA-Admin' }
+    });
+    const checkData = await check.json();
+    const sha = checkData.sha;
+
+    // Push update
+    const res = await fetch('https://api.github.com/repos/' + REPO_USER + '/' + REPO_NAME + '/contents/config.json', {
+      method: 'PUT',
+      headers: { 'Authorization': 'token ' + token, 'Accept': 'application/vnd.github.v3+json', 'Content-Type': 'application/json', 'User-Agent': 'RTA-Admin' },
+      body: JSON.stringify({ message: 'Update links via admin panel', content, sha })
+    });
+    const data = await res.json();
+    if (data.content) {
+      showMsg('✅ تم الحفظ! سيظهر على الموقع خلال دقيقة', true);
+    } else {
+      showMsg('خطأ: ' + (data.message || 'فشل الحفظ'), false);
+    }
+  } catch(e) {
+    showMsg('خطأ في الاتصال: ' + e.message, false);
+  }
+}
+
+function showMsg(text, ok) {
+  const el = document.getElementById('save-msg');
+  el.textContent = text;
+  el.className = 'msg ' + (ok ? 'msg-ok' : 'msg-err');
+  el.style.display = 'block';
+}
+</script>
+</body>
+</html>
