@@ -421,55 +421,78 @@ nav {
 .card h3 { font-size: 1.05rem; font-weight: 800; margin-bottom: 8px; }
 .card p  { font-size: 0.82rem; color: var(--text2); line-height: 1.5; }
 
-/* ===== SOCIAL BUTTONS ===== */
+/* ===== SOCIAL BUTTONS — EPIC REDESIGN ===== */
 .socials {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   gap: 14px;
-  justify-content: center;
+  max-width: 440px;
+  margin: 36px auto 0;
 }
-
-.btn {
-  display: inline-flex;
+.soc-btn {
+  display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 15px 32px;
-  border-radius: 16px;
+  gap: 18px;
+  padding: 18px 22px;
+  border-radius: 22px;
   font-weight: 800;
-  font-size: 0.97rem;
+  font-size: 1rem;
   text-decoration: none;
   color: #fff;
-  border: none;
-  cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: transform 0.2s var(--ease), box-shadow 0.3s;
+  transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1);
   -webkit-user-drag: none;
-  width: 100%;
-  max-width: 400px;
-  letter-spacing: 0.5px;
 }
-.btn::after {
+.soc-btn::before {
   content: '';
   position: absolute;
   inset: 0;
-  background: rgba(255,255,255,0);
-  transition: background 0.2s;
+  background: linear-gradient(135deg,rgba(255,255,255,0.12),transparent);
+  opacity: 0;
+  transition: opacity 0.3s;
+  pointer-events: none;
 }
-.btn:hover::after { background: rgba(255,255,255,0.06); }
-.btn:hover { transform: translateY(-3px); }
-.btn:active { transform: scale(0.96) translateY(1px); }
-
-.btn-discord { background: linear-gradient(135deg,#5865F2,#3b4acf); box-shadow: 0 8px 24px rgba(88,101,242,0.35); }
-.btn-app     { background: linear-gradient(135deg,var(--p1),var(--p2)); box-shadow: 0 8px 24px rgba(124,58,237,0.35); }
-.btn-yt      { background: linear-gradient(135deg,#ff0000,#cc0000); box-shadow: 0 8px 24px rgba(255,0,0,0.3); }
-.btn-dl      { background: linear-gradient(135deg,var(--gold),var(--gold2)); color: #1a0a00; box-shadow: 0 8px 24px rgba(245,158,11,0.3); }
-.btn-android { background: linear-gradient(135deg,#3ddc84,#1a9957); box-shadow: 0 8px 24px rgba(61,220,132,0.3); }
-.btn-pc      { background: linear-gradient(135deg,#38bdf8,#0369a1); box-shadow: 0 8px 24px rgba(56,189,248,0.3); }
-.btn-pek-i   { background: linear-gradient(135deg,var(--p1),var(--p2)); box-shadow: 0 8px 24px rgba(124,58,237,0.35); }
-.btn-pek-a   { background: linear-gradient(135deg,#f87171,#b91c1c); box-shadow: 0 8px 24px rgba(248,113,113,0.3); }
-.btn-black   { background: linear-gradient(135deg,#1f1f2e,#111); border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 8px 20px rgba(0,0,0,0.4); }
+.soc-btn:hover::before { opacity: 1; }
+.soc-btn:hover { transform: translateY(-4px) scale(1.02); }
+.soc-btn:active { transform: scale(0.97); }
+.soc-icon {
+  width: 54px; height: 54px;
+  border-radius: 15px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem;
+  flex-shrink: 0;
+  background: rgba(255,255,255,0.15);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.25);
+}
+.soc-info { display: flex; flex-direction: column; text-align: right; flex: 1; }
+.soc-label { font-size: 1.02rem; font-weight: 900; letter-spacing: 0.3px; }
+.soc-desc  { font-size: 0.76rem; opacity: 0.72; margin-top: 3px; font-weight: 600; }
+.soc-arrow { font-size: 1.1rem; opacity: 0.45; transition: transform 0.25s, opacity 0.25s; flex-shrink: 0; }
+.soc-btn:hover .soc-arrow { transform: translateX(-5px); opacity: 1; }
+.soc-discord {
+  background: linear-gradient(135deg,#5865F2,#3b4acf);
+  box-shadow: 0 8px 32px rgba(88,101,242,0.45);
+  border: 1px solid rgba(88,101,242,0.5);
+  animation: discordPulse 3s ease-in-out infinite;
+}
+@keyframes discordPulse {
+  0%,100% { box-shadow: 0 8px 32px rgba(88,101,242,0.45); }
+  50%      { box-shadow: 0 14px 50px rgba(88,101,242,0.72), 0 0 0 4px rgba(88,101,242,0.15); }
+}
+.soc-discord:hover { box-shadow: 0 16px 50px rgba(88,101,242,0.7); animation: none; }
+.soc-youtube {
+  background: linear-gradient(135deg,#ff2200,#cc0000);
+  box-shadow: 0 8px 32px rgba(255,0,0,0.38);
+  border: 1px solid rgba(255,60,60,0.4);
+}
+.soc-youtube:hover { box-shadow: 0 16px 50px rgba(255,0,0,0.6); }
+.soc-app {
+  background: linear-gradient(135deg,#7c3aed,#4f1dab);
+  box-shadow: 0 8px 32px rgba(124,58,237,0.38);
+  border: 1px solid rgba(124,58,237,0.45);
+}
+.soc-app:hover { box-shadow: 0 16px 50px rgba(124,58,237,0.6); }
 
 /* ===== SECTION HERO (inner pages) ===== */
 .section-hero {
@@ -915,7 +938,6 @@ nav {
         </div>
         <ul class="submenu" id="sub-iphone">
           <li onclick="navTo('roblox')">هاك روبلوكس ايفون</li>
-          <li onclick="navTo('pek-iphone')">روبلوكس القديمه (بيكورا)</li>
         </ul>
       </li>
       <li class="menu-item" id="mi-android">
@@ -925,7 +947,6 @@ nav {
         </div>
         <ul class="submenu" id="sub-android">
           <li onclick="navTo('roblox-android')">هاك روبلوكس اندرويد</li>
-          <li onclick="navTo('pek-android')">روبلوكس القديمه (بيكورا)</li>
         </ul>
       </li>
       <li class="menu-item" id="mi-pc">
@@ -935,41 +956,11 @@ nav {
         </div>
         <ul class="submenu" id="sub-pc">
           <li onclick="navTo('roblox-pc')">هاك روبلوكس بي سي</li>
-          <li onclick="navTo('pek-pc')">روبلوكس القديمه (بيكورا)</li>
         </ul>
       </li>
     </ul>
 
-    <div class="menu-divider"></div>
-    <ul class="menu-list">
-      <li class="menu-item">
-        <div class="plain-item" onclick="navPlain('certs')">
-          <i class="bi bi-patch-check"></i> شراء شهايد
-        </div>
-      </li>
-    </ul>
 
-  </div>
-</div>
-
-<!-- ===== PLATFORM CHOOSER MODAL ===== -->
-<div class="modal-overlay" id="chooser" onclick="if(event.target===this)closeChooser()">
-  <div class="modal">
-    <button class="modal-close" onclick="closeChooser()">&times;</button>
-    <h3 id="chooser-title">اختر ما تريد</h3>
-    <p>اختر النوع المناسب لك</p>
-    <div class="modal-choices">
-      <button class="choice choice-hack" onclick="pickChoice('hack')">
-        <i class="bi bi-lightning-fill"></i>
-        <b>هاك روبلوكس</b>
-        <small>إكسيكيوتر متقدم</small>
-      </button>
-      <button class="choice choice-pek" onclick="pickChoice('pekora')">
-        <i class="bi bi-clock-history"></i>
-        <b>روبلوكس القديمه</b>
-        <small>بيكورا 2017–2021</small>
-      </button>
-    </div>
   </div>
 </div>
 
@@ -986,38 +977,49 @@ nav {
   </div>
 
   <div class="cards-grid">
-    <div class="card" onclick="openChooser('iphone')">
+    <div class="card" onclick="navTo('roblox')">
       <i class="bi bi-phone"></i>
-      <h3>تطبيقات iOS</h3>
-      <p>هاك روبلوكس + روبلوكس القديمه (بيكورا)</p>
+      <h3>هاك iOS</h3>
+      <p>أقوى هاكات روبلوكس للايفون</p>
     </div>
-    <div class="card" onclick="openChooser('android')">
+    <div class="card" onclick="navTo('roblox-android')">
       <i class="bi bi-android2"></i>
-      <h3>تطبيقات Android</h3>
-      <p>هاك روبلوكس + روبلوكس القديمه (بيكورا)</p>
+      <h3>هاك Android</h3>
+      <p>هاكات روبلوكس للاندرويد</p>
     </div>
-    <div class="card" onclick="openChooser('pc')">
+    <div class="card" onclick="navTo('roblox-pc')">
       <i class="bi bi-laptop"></i>
-      <h3>تطبيقات PC</h3>
-      <p>هاك روبلوكس + روبلوكس القديمه (بيكورا)</p>
-    </div>
-    <div class="card" onclick="navPlain('certs')">
-      <i class="bi bi-shield-fill-check"></i>
-      <h3>شراء شهايد</h3>
-      <p>شهادات مطورين بأسعار منافسة</p>
+      <h3>هاك PC</h3>
+      <p>أقوى هاكات روبلوكس للكمبيوتر</p>
     </div>
   </div>
 
-  <!-- ===== روابط السوشيال — الرئيسية ===== -->
+
+    <!-- ===== روابط السوشيال — الرئيسية ===== -->
   <div class="socials">
-    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="btn btn-discord" draggable="false">
-      <i class="bi bi-discord"></i> ديسكورد
+    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="soc-btn soc-discord" id="link-discord" draggable="false">
+      <span class="soc-icon"><i class="bi bi-discord"></i></span>
+      <span class="soc-info">
+        <span class="soc-label">ديسكورد RTA</span>
+        <span class="soc-desc">انضم للسيرفر الرسمي</span>
+      </span>
+      <i class="bi bi-chevron-left soc-arrow"></i>
     </a>
-    <a href="https://rtx261.github.io/RTX/RTX.mobileconfig" class="btn btn-app" draggable="false">
-      <i class="bi bi-phone"></i> تنزيل الموقع
+    <a href="https://youtube.com/@rta_7?si=KXRXxBI7BZ6ucdFn" target="_blank" class="soc-btn soc-youtube" id="link-youtube" draggable="false">
+      <span class="soc-icon"><i class="bi bi-youtube"></i></span>
+      <span class="soc-info">
+        <span class="soc-label">يوتيوب RTA</span>
+        <span class="soc-desc">تابع قناتنا الرسمية</span>
+      </span>
+      <i class="bi bi-chevron-left soc-arrow"></i>
     </a>
-    <a href="https://youtube.com/@rtxtop1-rtx" target="_blank" class="btn btn-yt" draggable="false">
-      <i class="bi bi-youtube"></i> يوتيوب
+    <a href="https://rtx261.github.io/RTX/RTX.mobileconfig" class="soc-btn soc-app" id="link-app" draggable="false">
+      <span class="soc-icon"><i class="bi bi-phone-fill"></i></span>
+      <span class="soc-info">
+        <span class="soc-label">تثبيت الموقع</span>
+        <span class="soc-desc">أضفه لشاشتك الرئيسية</span>
+      </span>
+      <i class="bi bi-chevron-left soc-arrow"></i>
     </a>
   </div>
   
@@ -1118,11 +1120,33 @@ nav {
     </ol>
   </div>
 
-  <!-- ===== روابط السوشيال — هاك ايفون ===== -->
+
+    <!-- ===== روابط السوشيال — هاك ايفون ===== -->
   <div class="socials">
-    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="btn btn-discord" draggable="false"><i class="bi bi-discord"></i> ديسكورد</a>
-    <a href="https://rtx261.github.io/RTX/RTX.mobileconfig" class="btn btn-app" draggable="false"><i class="bi bi-phone"></i> تنزيل الموقع</a>
-    <a href="https://youtube.com/@rtxtop1-rtx" target="_blank" class="btn btn-yt" draggable="false"><i class="bi bi-youtube"></i> يوتيوب</a>
+    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="soc-btn soc-discord" id="link-discord" draggable="false">
+      <span class="soc-icon"><i class="bi bi-discord"></i></span>
+      <span class="soc-info">
+        <span class="soc-label">ديسكورد RTA</span>
+        <span class="soc-desc">انضم للسيرفر الرسمي</span>
+      </span>
+      <i class="bi bi-chevron-left soc-arrow"></i>
+    </a>
+    <a href="https://youtube.com/@rta_7?si=KXRXxBI7BZ6ucdFn" target="_blank" class="soc-btn soc-youtube" id="link-youtube" draggable="false">
+      <span class="soc-icon"><i class="bi bi-youtube"></i></span>
+      <span class="soc-info">
+        <span class="soc-label">يوتيوب RTA</span>
+        <span class="soc-desc">تابع قناتنا الرسمية</span>
+      </span>
+      <i class="bi bi-chevron-left soc-arrow"></i>
+    </a>
+    <a href="https://rtx261.github.io/RTX/RTX.mobileconfig" class="soc-btn soc-app" id="link-app" draggable="false">
+      <span class="soc-icon"><i class="bi bi-phone-fill"></i></span>
+      <span class="soc-info">
+        <span class="soc-label">تثبيت الموقع</span>
+        <span class="soc-desc">أضفه لشاشتك الرئيسية</span>
+      </span>
+      <i class="bi bi-chevron-left soc-arrow"></i>
+    </a>
   </div>
   
 </div>
@@ -1310,11 +1334,33 @@ nav {
     </ol>
   </div>
 
-  <!-- ===== روابط السوشيال — هاك اندرويد ===== -->
+
+    <!-- ===== روابط السوشيال — هاك اندرويد ===== -->
   <div class="socials">
-    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="btn btn-discord" draggable="false"><i class="bi bi-discord"></i> ديسكورد</a>
-    <a href="https://rtx261.github.io/RTX/RTX.mobileconfig" class="btn btn-app" draggable="false"><i class="bi bi-phone"></i> تنزيل الموقع</a>
-    <a href="https://youtube.com/@rtxtop1-rtx" target="_blank" class="btn btn-yt" draggable="false"><i class="bi bi-youtube"></i> يوتيوب</a>
+    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="soc-btn soc-discord" id="link-discord" draggable="false">
+      <span class="soc-icon"><i class="bi bi-discord"></i></span>
+      <span class="soc-info">
+        <span class="soc-label">ديسكورد RTA</span>
+        <span class="soc-desc">انضم للسيرفر الرسمي</span>
+      </span>
+      <i class="bi bi-chevron-left soc-arrow"></i>
+    </a>
+    <a href="https://youtube.com/@rta_7?si=KXRXxBI7BZ6ucdFn" target="_blank" class="soc-btn soc-youtube" id="link-youtube" draggable="false">
+      <span class="soc-icon"><i class="bi bi-youtube"></i></span>
+      <span class="soc-info">
+        <span class="soc-label">يوتيوب RTA</span>
+        <span class="soc-desc">تابع قناتنا الرسمية</span>
+      </span>
+      <i class="bi bi-chevron-left soc-arrow"></i>
+    </a>
+    <a href="https://rtx261.github.io/RTX/RTX.mobileconfig" class="soc-btn soc-app" id="link-app" draggable="false">
+      <span class="soc-icon"><i class="bi bi-phone-fill"></i></span>
+      <span class="soc-info">
+        <span class="soc-label">تثبيت الموقع</span>
+        <span class="soc-desc">أضفه لشاشتك الرئيسية</span>
+      </span>
+      <i class="bi bi-chevron-left soc-arrow"></i>
+    </a>
   </div>
   
 </div>
@@ -1433,355 +1479,38 @@ nav {
     </ol>
   </div>
 
-  <!-- ===== روابط السوشيال — هاك بي سي ===== -->
+
+    <!-- ===== روابط السوشيال — هاك بي سي ===== -->
   <div class="socials">
-    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="btn btn-discord" draggable="false"><i class="bi bi-discord"></i> ديسكورد</a>
-    <a href="https://rtx261.github.io/RTX/RTX.mobileconfig" class="btn btn-app" draggable="false"><i class="bi bi-phone"></i> تنزيل الموقع</a>
-    <a href="https://youtube.com/@rtxtop1-rtx" target="_blank" class="btn btn-yt" draggable="false"><i class="bi bi-youtube"></i> يوتيوب</a>
-  </div>
-  
-</div>
-
-<!-- ========================================================= -->
-<!-- PAGE: بيكورا ايفون                                        -->
-<!-- ========================================================= -->
-<div class="page" id="page-pek-iphone">
-  <div class="section-hero">
-    <img src="https://i.postimg.cc/2S94Nh74/IMG-5013.jpg" alt="Pekora iPhone">
-    <div class="section-title">بيكورا — ايفون</div>
-    <p class="section-sub">روبلوكس القديمه لـ <span>iOS</span> — اختر النسخة</p>
-  </div>
-
-  <div class="hack-card">
-    <div class="hack-top">
-      <img src="https://i.postimg.cc/WzKvP9zW/IMG-5030.jpg" alt="2017" class="hack-img">
-      <div class="hack-info">
-        <h2>روبلوكس <span>2017</span> — ايفون</h2>
-        <ul class="features">
-          <li>تجربة روبلوكس الأصلية لعام 2017</li>
-          <li>واجهة كلاسيكية</li>
-          <li>أداء سلس على iOS</li>
-        </ul>
-      </div>
-    </div>
-    <div class="hack-btns">
-      <!-- ===== رابط بيكورا 2017 ايفون ===== -->
-      <a href="itms-services://?action=download-manifest&url=https://www.installonair.com/storage/ipaz/qPUdjF/qPUdjF.plist" class="btn btn-pek-i" draggable="false"><i class="bi bi-download"></i> Roblox 2017 Install</a>
-    </div>
-  </div>
-
-  <div class="hack-card">
-    <div class="hack-top">
-      <img src="https://i.postimg.cc/CKNpKMds/IMG-5031.jpg" alt="2018" class="hack-img">
-      <div class="hack-info">
-        <h2>روبلوكس <span>2018</span> — ايفون</h2>
-        <ul class="features">
-          <li>تجربة روبلوكس الأصلية لعام 2018</li>
-          <li>تحسينات في الأداء</li>
-          <li>متوافقة مع iOS</li>
-        </ul>
-      </div>
-    </div>
-    <div class="hack-btns">
-      <!-- ===== رابط بيكورا 2018 ايفون ===== -->
-      <a href="itms-services://?action=download-manifest&url=https://www.installonair.com/storage/ipaz/Cnxcvp/Cnxcvp.plist" class="btn btn-pek-i" draggable="false"><i class="bi bi-download"></i> Roblox 2018 Install</a>
-    </div>
-  </div>
-
-  <div class="hack-card">
-    <div class="hack-top">
-      <img src="https://i.postimg.cc/W1GQ9pG5/IMG-5032.jpg" alt="2020" class="hack-img">
-      <div class="hack-info">
-        <h2>روبلوكس <span>2020</span> — ايفون</h2>
-        <ul class="features">
-          <li>تجربة روبلوكس الأصلية لعام 2020</li>
-          <li>رسومات محسنة</li>
-          <li>أداء عالي على iOS</li>
-        </ul>
-      </div>
-    </div>
-    <div class="hack-btns">
-      <!-- ===== رابط بيكورا 2020 ايفون ===== -->
-      <a href="itms-services://?action=download-manifest&url=https://www.installonair.com/storage/ipaz/qUaKrE/qUaKrE.plist" class="btn btn-pek-i" draggable="false"><i class="bi bi-download"></i> Roblox 2020 Install</a>
-    </div>
-  </div>
-
-  <div class="hack-card">
-    <div class="hack-top">
-      <img src="https://i.postimg.cc/PfBX9xDJ/IMG-5033.jpg" alt="2021" class="hack-img">
-      <div class="hack-info">
-        <h2>روبلوكس <span>2021</span> <span class="tag-unofficial">غير رسمي</span></h2>
-        <ul class="features">
-          <li>تجربة روبلوكس لعام 2021</li>
-          <li>نسخة غير رسمية</li>
-          <li>قد تحتوي على بعض المشاكل</li>
-        </ul>
-      </div>
-    </div>
-    <div class="hack-btns">
-      <!-- ===== رابط بيكورا 2021 ايفون ===== -->
-      <a href="itms-services://?action=download-manifest&url=https://www.installonair.com/storage/ipaz/d5Dfp7/d5Dfp7.plist" class="btn btn-pek-i" draggable="false"><i class="bi bi-download"></i> Roblox 2021 (غير رسمي)</a>
-    </div>
-  </div>
-
-  <div class="guide-card">
-    <h2><i class="bi bi-info-circle"></i> شرح التحميل — بيكورا ايفون</h2>
-    <ol class="guide-steps">
-      <li>اضغط على زر التحميل الخاص بالنسخة التي تريدها.</li>
-      <li>سيظهر إشعار يطلب التثبيت — اضغط تثبيت.</li>
-      <li>اذهب إلى الإعدادات ← عام ← إدارة الأجهزة ووثّق الشهادة.</li>
-      <li>افتح التطبيق واستمتع!</li>
-    </ol>
-  </div>
-
-  <!-- ===== روابط السوشيال — بيكورا ايفون ===== -->
-  <div class="socials">
-    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="btn btn-discord" draggable="false"><i class="bi bi-discord"></i> ديسكورد</a>
-    <a href="https://rtx261.github.io/RTX/RTX.mobileconfig" class="btn btn-app" draggable="false"><i class="bi bi-phone"></i> تنزيل الموقع</a>
-    <a href="https://youtube.com/@rtxtop1-rtx" target="_blank" class="btn btn-yt" draggable="false"><i class="bi bi-youtube"></i> يوتيوب</a>
-  </div>
-  
-</div>
-
-<!-- ========================================================= -->
-<!-- PAGE: بيكورا اندرويد                                      -->
-<!-- ========================================================= -->
-<div class="page" id="page-pek-android">
-  <div class="section-hero">
-    <img src="https://i.postimg.cc/fbLQJndm/B5A2C9B1-F1AB-4799-BAA3-F03ADFA84FD0.png" alt="Pekora Android">
-    <div class="section-title">بيكورا — اندرويد</div>
-    <p class="section-sub">روبلوكس القديمه لـ <span>Android</span> — اختر النسخة</p>
-  </div>
-
-  <div class="hack-card">
-    <div class="hack-top">
-      <img src="https://i.postimg.cc/TwV0xhwR/IMG-5034.jpg" alt="2017" class="hack-img">
-      <div class="hack-info">
-        <h2>روبلوكس <span>2017</span> — اندرويد</h2>
-        <ul class="features">
-          <li>تجربة روبلوكس الأصلية لعام 2017</li>
-          <li>متوفر رسمي وغير رسمي</li>
-          <li>أداء سريع على الأندرويد</li>
-        </ul>
-      </div>
-    </div>
-    <div class="hack-btns">
-      <!-- ===== رابط بيكورا 2017 اندرويد رسمي ===== -->
-      <a href="https://www.mediafire.com/file/tzzl8frcvnem989/Pekora2017L.apk/file" class="btn btn-pek-a" draggable="false"><i class="bi bi-download"></i> Roblox 2017 (رسمي)</a>
-      <!-- ===== رابط بيكورا 2017 اندرويد غير رسمي ===== -->
-      <a href="https://www.mediafire.com/file/ggz4eg6hnfx2sqq/Korone_2017.apk/file" class="btn btn-pek-a" draggable="false"><i class="bi bi-download"></i> Roblox 2017 (غير رسمي)</a>
-    </div>
-  </div>
-
-  <div class="hack-card">
-    <div class="hack-top">
-      <img src="https://i.postimg.cc/XNgLDZmK/IMG-5035.jpg" alt="2018" class="hack-img">
-      <div class="hack-info">
-        <h2>روبلوكس <span>2018</span> <span class="tag-unofficial">غير رسمي</span></h2>
-        <ul class="features">
-          <li>تجربة روبلوكس لعام 2018</li>
-          <li>نسخة غير رسمية</li>
-          <li>قد تحتوي على بعض المشاكل</li>
-        </ul>
-      </div>
-    </div>
-    <div class="hack-btns">
-      <!-- ===== رابط بيكورا 2018 اندرويد ===== -->
-      <a href="https://www.mediafire.com/file/j713t6vbcx1fdbn/Korone_2018.apk/file" class="btn btn-pek-a" draggable="false"><i class="bi bi-download"></i> Roblox 2018 (غير رسمي)</a>
-    </div>
-  </div>
-
-  <div class="hack-card">
-    <div class="hack-top">
-      <img src="https://i.postimg.cc/BnjC6m6V/IMG-5036.jpg" alt="2020" class="hack-img">
-      <div class="hack-info">
-        <h2>روبلوكس <span>2020</span> <span class="tag-unofficial">غير رسمي</span></h2>
-        <ul class="features">
-          <li>تجربة روبلوكس لعام 2020</li>
-          <li>نسخة غير رسمية</li>
-          <li>قد تحتوي على بعض المشاكل</li>
-        </ul>
-      </div>
-    </div>
-    <div class="hack-btns">
-      <!-- ===== رابط بيكورا 2020 اندرويد ===== -->
-      <a href="https://www.mediafire.com/file/wvz6yi1144uu29i/Korone_2020.apk/file" class="btn btn-pek-a" draggable="false"><i class="bi bi-download"></i> Roblox 2020 (غير رسمي)</a>
-    </div>
-  </div>
-
-  <div class="hack-card">
-    <div class="hack-top">
-      <img src="https://i.postimg.cc/Gt3F1QVh/IMG-5038.jpg" alt="2021" class="hack-img">
-      <div class="hack-info">
-        <h2>روبلوكس <span>2021</span> <span class="tag-unofficial">غير رسمي</span></h2>
-        <ul class="features">
-          <li>تجربة روبلوكس لعام 2021</li>
-          <li>نسخة غير رسمية</li>
-          <li>قد تحتوي على بعض المشاكل</li>
-        </ul>
-      </div>
-    </div>
-    <div class="hack-btns">
-      <!-- ===== رابط بيكورا 2021 اندرويد ===== -->
-      <a href="https://www.mediafire.com/file/bpu9bzv8a3hmfe1/Korone_2021.apk/file" class="btn btn-pek-a" draggable="false"><i class="bi bi-download"></i> Roblox 2021 (غير رسمي)</a>
-    </div>
-  </div>
-
-  <div class="guide-card">
-    <h2><i class="bi bi-info-circle"></i> شرح التحميل — بيكورا اندرويد</h2>
-    <ol class="guide-steps">
-      <li>قم بتحميل ملف APK الخاص بالنسخة التي تريدها.</li>
-      <li>إذا ظهر تحذير "تطبيق غير معروف" فعّل "تثبيت من مصادر غير معروفة".</li>
-      <li>قم بتثبيت الملف وافتحه لبدء اللعب.</li>
-    </ol>
-  </div>
-
-  <!-- ===== روابط السوشيال — بيكورا اندرويد ===== -->
-  <div class="socials">
-    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="btn btn-discord" draggable="false"><i class="bi bi-discord"></i> ديسكورد</a>
-    <a href="https://rtx261.github.io/RTX/RTX.mobileconfig" class="btn btn-app" draggable="false"><i class="bi bi-phone"></i> تنزيل الموقع</a>
-    <a href="https://youtube.com/@rtxtop1-rtx" target="_blank" class="btn btn-yt" draggable="false"><i class="bi bi-youtube"></i> يوتيوب</a>
-  </div>
-  
-</div>
-
-<!-- ========================================================= -->
-<!-- PAGE: بيكورا بي سي                                        -->
-<!-- ========================================================= -->
-<div class="page" id="page-pek-pc">
-  <div class="section-hero">
-    <img src="https://i.postimg.cc/jSnzKCgJ/IMG-5015.jpg" alt="Pekora PC">
-    <div class="section-title">بيكورا — بي سي</div>
-    <p class="section-sub">روبلوكس القديمه لـ <span>Windows</span> — اختر النسخة</p>
-  </div>
-
-  <div class="hack-card">
-    <div class="hack-top">
-      <img src="https://i.postimg.cc/854vwvcC/IMG-5041.jpg" alt="2017" class="hack-img">
-      <div class="hack-info">
-        <h2>روبلوكس <span>2017</span> — بي سي</h2>
-        <ul class="features">
-          <li>تجربة روبلوكس الأصلية لعام 2017</li>
-          <li>أداء عالي على الكمبيوتر</li>
-          <li>نسخة رسمية</li>
-        </ul>
-      </div>
-    </div>
-    <div class="hack-btns">
-      <!-- ===== رابط بيكورا 2017 بي سي ===== -->
-      <a href="https://www.mediafire.com/file/kzadf87gvjyt6md/PekoraStudio2017+3.zip/file" class="btn btn-pc" draggable="false"><i class="bi bi-download"></i> Roblox 2017 Install</a>
-    </div>
-  </div>
-
-  <div class="hack-card">
-    <div class="hack-top">
-      <img src="https://i.postimg.cc/QxwT6h8p/IMG-5042.jpg" alt="2018" class="hack-img">
-      <div class="hack-info">
-        <h2>روبلوكس <span>2018</span> — بي سي</h2>
-        <ul class="features">
-          <li>تجربة روبلوكس الأصلية لعام 2018</li>
-          <li>تحسينات في الرسومات</li>
-          <li>نسخة رسمية</li>
-        </ul>
-      </div>
-    </div>
-    <div class="hack-btns">
-      <!-- ===== رابط بيكورا 2018 بي سي ===== -->
-      <a href="https://www.mediafire.com/file/n4j9d8b33273dqg/PekoraStudio2018+2.zip/file" class="btn btn-pc" draggable="false"><i class="bi bi-download"></i> Roblox 2018 Install</a>
-    </div>
-  </div>
-
-  <div class="hack-card">
-    <div class="hack-top">
-      <img src="https://i.postimg.cc/TwdLyP9B/IMG-5043.jpg" alt="2020" class="hack-img">
-      <div class="hack-info">
-        <h2>روبلوكس <span>2020</span> — بي سي</h2>
-        <ul class="features">
-          <li>تجربة روبلوكس الأصلية لعام 2020</li>
-          <li>أداء ممتاز</li>
-          <li>نسخة رسمية</li>
-        </ul>
-      </div>
-    </div>
-    <div class="hack-btns">
-      <!-- ===== رابط بيكورا 2020 بي سي ===== -->
-      <a href="https://www.mediafire.com/file/dd71xq5h51198yj/PekoraStudio2020+2.zip/file" class="btn btn-pc" draggable="false"><i class="bi bi-download"></i> Roblox 2020 Install</a>
-    </div>
-  </div>
-
-  <div class="hack-card">
-    <div class="hack-top">
-      <img src="https://i.postimg.cc/4NDY6PPY/IMG-5045.jpg" alt="2021" class="hack-img">
-      <div class="hack-info">
-        <h2>روبلوكس <span>2021</span> — بي سي</h2>
-        <ul class="features">
-          <li>تجربة روبلوكس لعام 2021</li>
-          <li>أحدث تحديثات الكلاسيكية</li>
-          <li>نسخة رسمية</li>
-        </ul>
-      </div>
-    </div>
-    <div class="hack-btns">
-      <!-- ===== رابط بيكورا 2021 بي سي ===== -->
-      <a href="https://www.mediafire.com/file/4jcde8p3eo91f4t/PekoraStudio2021+2.zip/file" class="btn btn-pc" draggable="false"><i class="bi bi-download"></i> Roblox 2021 Install</a>
-    </div>
-  </div>
-
-  <div class="guide-card">
-    <h2><i class="bi bi-info-circle"></i> شرح التشغيل — بيكورا بي سي</h2>
-    <ol class="guide-steps">
-      <li>قم بتحميل الملف المضغوط وفك الضغط عنه.</li>
-      <li>أغلق برنامج الحماية (Windows Defender) لتجنب حذف الملفات.</li>
-      <li>افتح اللعبة وشغّلها كمسؤول (Run as Administrator).</li>
-    </ol>
-  </div>
-
-  <!-- ===== روابط السوشيال — بيكورا بي سي ===== -->
-  <div class="socials">
-    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="btn btn-discord" draggable="false"><i class="bi bi-discord"></i> ديسكورد</a>
-    <a href="https://rtx261.github.io/RTX/RTX.mobileconfig" class="btn btn-app" draggable="false"><i class="bi bi-phone"></i> تنزيل الموقع</a>
-    <a href="https://youtube.com/@rtxtop1-rtx" target="_blank" class="btn btn-yt" draggable="false"><i class="bi bi-youtube"></i> يوتيوب</a>
-  </div>
-  
-</div>
-
-<!-- ========================================================= -->
-<!-- PAGE: شراء شهايد                                          -->
-<!-- ========================================================= -->
-<div class="page" id="page-certs">
-  <div class="cert-hero">
-    <div class="cert-icon"><i class="bi bi-patch-check"></i></div>
-    <h1>شراء شهايد</h1>
-    <p>شهادات مطورين للايفون بأسعار منافسة ودعم متواصل</p>
-  </div>
-
-  <div class="perks-grid">
-    <div class="perk">
-      <i class="bi bi-shield-fill-check"></i>
-      <h3>آمنة 100%</h3>
-      <p>شهادات موثوقة لتثبيت أي تطبيق</p>
-    </div>
-    <div class="perk">
-      <i class="bi bi-calendar-check"></i>
-      <h3>سنة كاملة</h3>
-      <p>الشهادة تدوم لمدة 12 شهراً</p>
-    </div>
-    <div class="perk">
-      <i class="bi bi-headset"></i>
-      <h3>دعم متواصل</h3>
-      <p>فريق دعم جاهز لمساعدتك</p>
-    </div>
-  </div>
-
-  <!-- ===== رابط ديسكورد — شراء شهايد ===== -->
-  <div class="socials">
-    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="btn btn-discord" draggable="false">
-      <i class="bi bi-discord"></i> تواصل معنا عبر الديسكورد للشراء
+    <a href="https://discord.gg/Hh2zAXjCqz" target="_blank" class="soc-btn soc-discord" id="link-discord" draggable="false">
+      <span class="soc-icon"><i class="bi bi-discord"></i></span>
+      <span class="soc-info">
+        <span class="soc-label">ديسكورد RTA</span>
+        <span class="soc-desc">انضم للسيرفر الرسمي</span>
+      </span>
+      <i class="bi bi-chevron-left soc-arrow"></i>
+    </a>
+    <a href="https://youtube.com/@rta_7?si=KXRXxBI7BZ6ucdFn" target="_blank" class="soc-btn soc-youtube" id="link-youtube" draggable="false">
+      <span class="soc-icon"><i class="bi bi-youtube"></i></span>
+      <span class="soc-info">
+        <span class="soc-label">يوتيوب RTA</span>
+        <span class="soc-desc">تابع قناتنا الرسمية</span>
+      </span>
+      <i class="bi bi-chevron-left soc-arrow"></i>
+    </a>
+    <a href="https://rtx261.github.io/RTX/RTX.mobileconfig" class="soc-btn soc-app" id="link-app" draggable="false">
+      <span class="soc-icon"><i class="bi bi-phone-fill"></i></span>
+      <span class="soc-info">
+        <span class="soc-label">تثبيت الموقع</span>
+        <span class="soc-desc">أضفه لشاشتك الرئيسية</span>
+      </span>
+      <i class="bi bi-chevron-left soc-arrow"></i>
     </a>
   </div>
   
 </div>
 
+<!-- ========================================================= -->
 <!-- ===== JS ===== -->
 <script>
 /* ---------- ANNOUNCEMENT ---------- */
@@ -1897,29 +1626,20 @@ function showPage(id) {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
-/* ---------- PLATFORM CHOOSER ---------- */
-const PLATFORMS = {
-  iphone:  { hack: 'page-roblox',         pekora: 'page-pek-iphone' },
-  android: { hack: 'page-roblox-android',  pekora: 'page-pek-android' },
-  pc:      { hack: 'page-roblox-pc',       pekora: 'page-pek-pc' },
-};
-let _currentPlatform = null;
 
-function openChooser(platform) {
-  _currentPlatform = platform;
-  const labels = { iphone: 'iOS / ايفون', android: 'Android', pc: 'PC / كمبيوتر' };
-  document.getElementById('chooser-title').textContent = 'اختر ما تريد — ' + labels[platform];
-  document.getElementById('chooser').classList.add('open');
-}
-function closeChooser() {
-  document.getElementById('chooser').classList.remove('open');
-}
-function pickChoice(type) {
-  if (!_currentPlatform) return;
-  const dest = PLATFORMS[_currentPlatform][type];
-  closeChooser();
-  showPage(dest);
-}
+/* ---------- VISIT COUNTER (CountAPI) ---------- */
+(function(){try{fetch('https://api.countapi.xyz/hit/rta200263-rta/visits').catch(()=>{});}catch(e){}})();
+
+/* ---------- DYNAMIC LINKS from config.json ---------- */
+(function(){
+  fetch('https://raw.githubusercontent.com/rta200263/rta-website/main/config.json?_=' + Date.now())
+    .then(r=>r.json())
+    .then(c=>{
+      if(c.discord)  document.querySelectorAll('#link-discord').forEach(el=>el.href=c.discord);
+      if(c.youtube)  document.querySelectorAll('#link-youtube').forEach(el=>el.href=c.youtube);
+      if(c.download) document.querySelectorAll('#link-app').forEach(el=>el.href=c.download);
+    }).catch(()=>{});
+})();
 
 /* ---------- SERVICE WORKER (offline support) ---------- */
 if ('serviceWorker' in navigator) {
